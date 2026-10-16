@@ -15,7 +15,7 @@
 
 
 Phân công chi tiết: `[PHAN_CONG.md](./PHAN_CONG.md)`  
-Đặc tả kickoff (PM): `[DAC_TA_DU_AN.md](./DAC_TA_DU_AN.docx)`
+Đặc tả kickoff (PM): [`docs/DAC_TA_DU_AN.md`](./docs/DAC_TA_DU_AN.md)
 
 ---
 
@@ -64,7 +64,6 @@ wedgk/
 ├── .env.example
 ├── .gitignore
 ├── PHAN_CONG.md
-├── DAC_TA_DU_AN.docx
 └── README.md
 ```
 

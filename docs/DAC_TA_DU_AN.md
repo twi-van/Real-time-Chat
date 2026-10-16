@@ -110,12 +110,11 @@ wedgk/
 ├── client/           # Kim Lợi
 ├── server/           # Thùy Vân
 │   └── prisma/       # Diệu Hiền
-├── docs/             # Contract / UI outline / DB schema (do đúng người viết)
+├── docs/             # DAC_TA_DU_AN.md · api-contract · ui-outline · db_schema
 ├── docker-compose.yml
 ├── .env.example
 ├── PHAN_CONG.md
-├── README.md
-└── DAC_TA_DU_AN.docx # Bản đặc tả kickoff (file này)
+└── README.md
 ```
 
 ---
