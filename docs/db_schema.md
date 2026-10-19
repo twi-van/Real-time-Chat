@@ -10,10 +10,10 @@
 - **Message**: tin nhắn được gửi trong phòng.
 
 ## 2. Quan hệ giữa các bảng
-- **User–User**: hai người dùng có thể trò chuyện riêng 1:1 thông qua một phòng `DIRECT`; phòng này thường có hai thành viên trong `RoomMember`.
-- **User–Room**: quan hệ nhiều-nhiều thông qua `RoomMember`; một người dùng có thể tham gia nhiều phòng.
-- **Room–Message**: một phòng có thể chứa nhiều tin nhắn.
-- **User–Message**: một người dùng có thể gửi nhiều tin nhắn.
+- **User–User** (1:1): hai người dùng có thể trò chuyện riêng 1:1 thông qua một phòng `DIRECT`; phòng này thường có hai thành viên trong `RoomMember`.
+- **User–Room**(N-N): quan hệ nhiều-nhiều thông qua `RoomMember`; một người dùng có thể tham gia nhiều phòng.
+- **Room–Message** (1-N): một phòng có thể chứa nhiều tin nhắn.
+- **User–Message** (1-N): một người dùng có thể gửi nhiều tin nhắn.
 - `RoomMember` tham chiếu `User` và `Room` bằng khóa ngoại; cặp (`room_id`, `user_id`) cần duy nhất.
 
 ## 3. Hướng migrate và seed tài khoản demo
@@ -45,6 +45,12 @@ Thứ tự migration ban đầu:
 - `messages(room_id, created_at, id)`: composite index hỗ trợ tải lịch sử tin nhắn theo phòng và phân trang.
 - API có `cursor` và `limit`, nhưng hai tài liệu chưa quy định định dạng cursor. Có thể dùng cặp (`created_at`, `id`) để phân trang ổn định.
 - Backend cần giới hạn `limit`, xác thực cursor và kiểm tra quyền truy cập phòng trước khi trả lịch sử.
+
+**Quy tắc phân trang đề xuất:**
+- Sắp xếp tin nhắn theo created_at DESC, id DESC.
+- Dùng cặp (created_at, id) làm cursor để xử lý trường hợp nhiều tin nhắn có cùng thời điểm.
+- Giới hạn giá trị limit để tránh truy vấn quá nhiều dữ liệu.
+- Kiểm tra quyền thành viên trước khi trả lịch sử tin nhắn.
 
 ## 5. Các quyết định cần nhóm xác nhận
 
