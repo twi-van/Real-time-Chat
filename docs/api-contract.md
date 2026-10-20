@@ -1,24 +1,47 @@
 # API & Socket Contract
 
 **Phụ trách:** Thùy Vân (Backend)  
-**Trạng thái:** Bản nháp mẫu — chỉnh rồi tick checklist + báo nhóm sync  
+**Trạng thái:** Đã chốt (Sprint 1) 
 
-**Cách dùng file này:** đây là “menu” chung. **Frontend** chỉ gọi đúng path/event ghi ở đây. Đổi gì → sửa file trước, rồi mới sửa code.  
+**Cách dùng:** Frontend chỉ gọi đúng path/event ghi ở đây. Đổi gì → sửa file trước, rồi mới sửa code.
 
 ---
 
 ## 1. Danh sách REST
 
 
-| Method | Path                  | Auth? | Mục đích          | Request (tóm tắt)                                    | Response (tóm tắt)          |
-| ------ | --------------------- | ----- | ----------------- | ---------------------------------------------------- | --------------------------- |
-| POST   | `/auth/register`      | Không | Đăng ký           | `email`, `password`, `displayName`                   | `user`, `token`             |
-| POST   | `/auth/login`         | Không | Đăng nhập         | `email`, `password`                                  | `user`, `token`             |
-| GET    | `/rooms`              | JWT   | Lấy room của mình | —                                                    | `rooms[]`                   |
-| POST   | `/rooms`              | JWT   | Tạo room          | `name`, `type` (`GROUP` hoặc `DIRECT`), `memberIds?` | `room`                      |
-| POST   | `/rooms/:id/join`     | JWT   | Vào room          | —                                                    | `room` / ok                 |
-| GET    | `/rooms/:id/messages` | JWT   | Lịch sử tin       | query: `cursor?`, `limit?`                           | `messages[]`, `nextCursor?` |
+| Method | Path                  | Auth? | Mục đích                              | Request (tóm tắt)                        | Response (tóm tắt)                               |
+| ------ | --------------------- | ----- | ------------------------------------- | ---------------------------------------- | ------------------------------------------------ |
+| POST   | `/auth/register`      | Không | Đăng ký                               | `email`, `password`, `displayName`       | `user`, `token`                                  |
+| POST   | `/auth/login`         | Không | Đăng nhập                             | `email`, `password`                      | `user`, `token`                                  |
+| GET    | `/users`              | JWT   | List user (modal Chat mới / Tạo nhóm) | `q?` tuỳ chọn                            | `users[]`: `id`, `displayName`, `email`          |
+| GET    | `/rooms`              | JWT   | Room của mình                         | —                                        | `rooms[]` (kèm `members` hoặc đủ để FE hiện tên) |
+| POST   | `/rooms`              | JWT   | Tạo room                              | xem note dưới                            | `room`                                           |
+| GET    | `/rooms/:id/messages` | JWT   | Lịch sử tin                           | `cursor?`, `limit?` (max 50, default 30) | `messages[]`, `nextCursor?`                      |
 
+
+**Model room (chốt MVP):** chỉ **một loại room** — không có `type` `DIRECT` / `GROUP`.  
+Chat 2 người hay nhiều người đều là room + `memberIds`; khác nhau ở số thành viên.
+
+**`POST /rooms`:**
+
+```json
+{ "memberIds": ["id1"] }
+```
+
+Ví dụ tạo nhóm:
+
+```json
+{ "name": "Nhom demo", "memberIds": ["id1", "id2"] }
+```
+
+- Server **tự thêm** current user vào members.  
+- `name`: **tuỳ chọn** — chat đôi có thể **không gửi** field này; nhóm (≥ 2 người được mời) thì **bắt buộc** có `name`.  
+- **Chốt MVP — chống trùng chat đôi:** nếu `memberIds` chỉ 1 người (cộng mình = 2) và đã tồn tại room **đúng 2 thành viên** là đúng cặp đó → **trả room cũ**, không tạo mới. Room nhóm (≥ 3 thành viên) **không** áp dụng rule này.
+
+**Hoãn MVP:** `POST /rooms/:id/join` (join bằng link) — UI không dùng.
+
+**Cursor tin nhắn:** `(createdAt, id)` — khớp `docs/db_schema.md` (đã chốt).
 
 ---
 
@@ -105,3 +128,65 @@ FE nên: gặp `UNAUTHORIZED` → xóa token, về màn Login.
 
 ---
 
+
+
+## 5. Quyết định đã chốt (Sprint 1)
+
+- [x] REST: register, login, `GET /users`, rooms, messages  
+- [x] Một loại room — không `type` DIRECT/GROUP  
+- [x] `POST /rooms`: `{ name?, memberIds[] }` — server tự thêm current user  
+- [x] Chat đôi: `name` có thể trống; nhóm: `name` bắt buộc  
+- [x] Chống trùng room đúng 2 thành viên (cùng cặp user)  
+- [x] Hoãn `POST /rooms/:id/join` (join link)  
+- [x] Cursor tin: `(createdAt, id)` · limit default 30 / max 50  
+- [x] Socket: `join_room`, `leave_room`, `send_message`, `receive_message`, `typing`, `presence`  
+- [x] JWT qua `auth: { token }` khi connect Socket  
+- [x] Lỗi: 400 / 401 / 403 / 429 + mã `UNAUTHORIZED`, `FORBIDDEN`, `VALIDATION_ERROR`, `RATE_LIMITED`  
+
+---
+
+
+
+## 6. Backend — Sprint 2 → 8
+
+
+
+### Sprint 2 — Auth + chat realtime tối thiểu
+
+- [ ] Init `server/` (Node + JS + Express/Fastify + Socket.io)  
+- [ ] `POST /auth/register`, `POST /auth/login` → JWT  
+- [ ] Middleware JWT cho REST  
+- [ ] Socket connect + verify `auth.token`  
+- [ ] `join_room` / `send_message` / `receive_message` (2 client chat được)  
+- [ ] Nối Prisma khi Hiền có migrate (hoặc memory tạm rồi thay)
+
+
+
+### Sprint 3–4 — Đủ contract + ghép FE
+
+- [ ] `GET /users`, `GET/POST /rooms` (chống trùng chat đôi), `GET .../messages` + cursor  
+- [ ] `typing`, `presence`, `leave_room`  
+- [ ] Rate limit connect / send_message  
+- [ ] Fix theo feedback FE (Lợi)
+
+
+
+### Sprint 5–6 — Ổn định MVP
+
+- [ ] Xử lý lỗi đúng mã contract (401/403/400/429)  
+- [ ] Test Postman + 2 tab với FE  
+- [ ] Polish / bugfix (không ôm optional)
+
+
+
+### Sprint 7 — Vận hành
+
+- [ ] Hỗ trợ Hiền: env, port, CORS, proxy WS nếu cần  
+- [ ] Kiểm tra chạy theo README trên máy sạch
+
+
+
+### Sprint 8 — Report + video
+
+- [ ] Viết phần report: lý thuyết HTTP vs WS + Security (JWT, rate limit) → gửi **Hiền** gộp Word  
+- [ ] Tham gia video: nói/demo phần Backend (do **Lợi** quay & dựng)  

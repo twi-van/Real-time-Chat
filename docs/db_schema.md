@@ -1,65 +1,215 @@
 # Database Schema
 
 **Phụ trách:** Diệu Hiền (Database & DevOps)  
-**Trạng thái:** TODO — viết và chốt với nhóm trong tuần 1  
+**Trạng thái:** Đã chốt (Sprint 1) — đủ để Prisma migrate + seed  
+
+**Stack chốt:** PostgreSQL 16 + **Prisma** (Node).  
+**ID:** UUID (`String @id @default(uuid())`).
+
+---
 
 ## 1. Thực thể chính
+
 - **User**: thông tin tài khoản người dùng.
-- **Room**: phòng chat, gồm `DIRECT` (trò chuyện 1:1) hoặc `GROUP` (trò chuyện nhóm).
+- **Room**: phòng chat **một loại** (không phân `DIRECT` / `GROUP`). Chat 2 người hay nhiều người chỉ khác **số thành viên** trong `RoomMember`. Không dùng field/enum `type` trên Room.
 - **RoomMember**: bảng trung gian lưu thành viên của phòng.
 - **Message**: tin nhắn được gửi trong phòng.
 
+### 1.1. Cột từng bảng (MVP)
+
+
+
+#### User
+
+
+| Cột          | Kiểu     | Ghi chú                      |
+| ------------ | -------- | ---------------------------- |
+| id           | UUID     | PK                           |
+| email        | String   | Unique, dùng đăng nhập       |
+| passwordHash | String   | bcrypt (không lưu plaintext) |
+| displayName  | String   | Tên hiển thị                 |
+| createdAt    | DateTime | default now                  |
+
+
+
+
+#### Room
+
+
+| Cột         | Kiểu     | Ghi chú                                                                                            |
+| ----------- | -------- | -------------------------------------------------------------------------------------------------- |
+| id          | UUID     | PK                                                                                                 |
+| name        | String?  | **Nullable** khi chat đôi (FE hiện tên đối phương); **bắt buộc** khi tạo nhóm (≥ 2 người được mời) |
+| createdById | UUID     | FK → User                                                                                          |
+| createdAt   | DateTime | default now                                                                                        |
+
+
+
+
+#### RoomMember
+
+
+| Cột      | Kiểu     | Ghi chú                               |
+| -------- | -------- | ------------------------------------- |
+| id       | UUID     | PK (hoặc dùng @@id([roomId, userId])) |
+| roomId   | UUID     | FK → Room                             |
+| userId   | UUID     | FK → User                             |
+| joinedAt | DateTime | default now                           |
+|          |          | **Unique** `(roomId, userId)`         |
+
+
+
+
+#### Message
+
+
+| Cột       | Kiểu          | Ghi chú      |
+| --------- | ------------- | ------------ |
+| id        | UUID          | PK           |
+| roomId    | UUID          | FK → Room    |
+| senderId  | UUID          | FK → User    |
+| content   | Text / String | Nội dung tin |
+| createdAt | DateTime      | default now  |
+
+
+**Không lưu DB (MVP):** typing, presence — chỉ qua Socket.
+
+---
+
+
+
 ## 2. Quan hệ giữa các bảng
-- **User–User** (1:1): hai người dùng có thể trò chuyện riêng 1:1 thông qua một phòng `DIRECT`; phòng này thường có hai thành viên trong `RoomMember`.
-- **User–Room**(N-N): quan hệ nhiều-nhiều thông qua `RoomMember`; một người dùng có thể tham gia nhiều phòng.
-- **Room–Message** (1-N): một phòng có thể chứa nhiều tin nhắn.
-- **User–Message** (1-N): một người dùng có thể gửi nhiều tin nhắn.
-- `RoomMember` tham chiếu `User` và `Room` bằng khóa ngoại; cặp (`room_id`, `user_id`) cần duy nhất.
 
-## 3. Hướng migrate và seed tài khoản demo
-### 3.1 Hướng migrate
-**Đề xuất:** dùng migration có phiên bản (ví dụ Alembic nếu backend Python + SQLAlchemy, hoặc công cụ migration tương ứng với stack thực tế).
+- **User–Room** (N-N): qua `RoomMember`; một user nhiều room; một room ≥ 2 thành viên.
+- **Room–Message** (1-N).
+- **User–Message** (1-N) qua `senderId`.
+- `RoomMember`: FK `User`, `Room`; unique `(room_id, user_id)`.
 
-Thứ tự migration ban đầu:
+---
 
-1. Tạo bảng `users`.
-2. Tạo bảng `rooms`, với `created_by_id` tham chiếu `users.id`.
-3. Tạo bảng `room_members`, tham chiếu `users.id` và `rooms.id`.
-4. Tạo bảng `messages`, tham chiếu `rooms.id` và `users.id`.
-5. Tạo unique constraint và các index được liệt kê trong mục Indexes.
-6. Kiểm tra migration trên database phát triển trước khi áp dụng vào môi trường dùng chung
-- Hai tài liệu đầu vào chưa quy định DBMS, công cụ migration hoặc thông tin tài khoản demo; nhóm cần thống nhất các lựa chọn này.
 
-### 3.2 Seed tài khoản demo
-- Tạo tài khoản qua seed script hoặc luồng đăng ký, không chèn mật khẩu dạng plaintext.
-- Băm mật khẩu bằng Argon2id hoặc bcrypt trước khi lưu `password_hash`.
-- Dùng thao tác upsert hoặc kiểm tra email đã tồn tại để seed chạy lặp lại không tạo tài khoản trùng.
-- Có thể tạo một số phòng và bản ghi thành viên mẫu để kiểm thử danh sách phòng, chat 1-1 và chat nhóm.
-- Không dùng thông tin đăng nhập demo yếu hoặc cố định trong production; không commit bí mật thật vào repository.
-**Quy tắc seed:** chỉ seed dữ liệu mẫu ở môi trường local/test. Không ghi mật khẩu demo vào log.
 
-## 4. Ghi chú index và phân trang lịch sử
-- `users.email`: unique index để hỗ trợ đăng nhập và ngăn email trùng.
-- `room_members(room_id, user_id)`: unique composite index để ngăn thành viên bị thêm trùng trong một phòng.
-- `room_members(user_id, room_id)`: index hỗ trợ truy vấn danh sách phòng của người dùng.
-- `messages(room_id, created_at, id)`: composite index hỗ trợ tải lịch sử tin nhắn theo phòng và phân trang.
-- API có `cursor` và `limit`, nhưng hai tài liệu chưa quy định định dạng cursor. Có thể dùng cặp (`created_at`, `id`) để phân trang ổn định.
-- Backend cần giới hạn `limit`, xác thực cursor và kiểm tra quyền truy cập phòng trước khi trả lịch sử.
+## 3. Hướng migrate và seed
 
-**Quy tắc phân trang đề xuất:**
-- Sắp xếp tin nhắn theo created_at DESC, id DESC.
-- Dùng cặp (created_at, id) làm cursor để xử lý trường hợp nhiều tin nhắn có cùng thời điểm.
-- Giới hạn giá trị limit để tránh truy vấn quá nhiều dữ liệu.
-- Kiểm tra quyền thành viên trước khi trả lịch sử tin nhắn.
 
-## 5. Các quyết định cần nhóm xác nhận
 
-- [ ] DBMS chính thức: PostgreSQL, MySQL hay SQLite.
-- [ ] Kiểu ID: số tự tăng hay UUID.
-- [ ] Công cụ migration phù hợp với backend thực tế.
-- [ ] Thông tin và cách cấp tài khoản demo.
-- [ ] Định dạng cursor, thứ tự tin nhắn và giới hạn `limit`.
-- [ ] Chính sách xóa user/room và lưu giữ lịch sử tin nhắn.
-- [ ] Quy tắc đảm bảo không tạo nhiều phòng `DIRECT` trùng cho cùng một cặp người dùng, nếu sản phẩm yêu cầu.
+### 3.1. Migrate
 
-> Khớp với contract API của Backend trước khi `prisma migrate`.  
+Dùng **Prisma Migrate** (`npx prisma migrate dev`).
+
+Thứ tự:
+
+1. `users`
+2. `rooms` (`created_by_id` → `users.id`)
+3. `room_members`
+4. `messages`
+5. Unique + index (mục 4)
+
+
+
+### 3.2. Seed tài khoản demo (local/test) — đơn giản
+
+Cùng password: `123456`
+
+
+| Email     | Password | displayName |
+| --------- | -------- | ----------- |
+| `a@a.com` | `123456` | An          |
+| `b@b.com` | `123456` | Bình        |
+| `c@c.com` | `123456` | Chi         |
+
+
+- Hash bằng **bcrypt** trước khi ghi `passwordHash`.  
+- Upsert theo email.  
+- Thêm: 1 room 2 người (An+Bình) + 1 room nhóm `Nhóm demo` (An+Bình+Chi).  
+- Chỉ dùng local/test.
+
+---
+
+
+
+## 4. Index và phân trang lịch sử
+
+
+
+### Index
+
+- `users.email` — unique  
+- `room_members(room_id, user_id)` — unique  
+- `room_members(user_id)` — list room của user  
+- `messages(room_id, created_at, id)` — lịch sử + cursor
+
+
+
+### Cursor (chốt, khớp API)
+
+- Sort: `createdAt DESC`, `id DESC`  
+- Cursor = cặp `(createdAt, id)`  
+- `limit` mặc định **30**, tối đa **50**  
+- Chỉ trả tin nếu user là member của room
+
+---
+
+
+
+## 5. Quyết định đã chốt / còn lại
+
+- [x] DBMS: **PostgreSQL**  
+- [x] Migration: **Prisma**  
+- [x] ID: **UUID**  
+- [x] Seed demo: bảng mục 3.2  
+- [x] Cursor: `(created_at, id)`, limit 30–50  
+- [x] Room một loại; `name` nullable khi chat đôi  
+- [x] **Chống trùng chat đôi (MVP):** không tạo trùng room đúng 2 thành viên cho cùng một cặp user — logic ở BE khi `POST /rooms`; room nhóm không áp dụng  
+- [ ] Chính sách xóa user/room (có thể để sau MVP)  
+
+> Khớp `docs/api-contract.md` trước khi `prisma migrate`.  
+
+---
+
+
+
+## 6. Database & DevOps — Sprint 2 → 8
+
+
+
+### Sprint 2 — DB chạy được
+
+- [ ] Viết `server/prisma/schema.prisma` đúng cột mục 1.1  
+- [ ] `prisma migrate` + `db seed` ([a@a.com](mailto:a@a.com) / [b@b.com](mailto:b@b.com) / [c@c.com](mailto:c@c.com))  
+- [ ] `docker compose` Postgres khớp `.env.example`  
+- [ ] Báo Vân `DATABASE_URL` + cách chạy migrate
+
+
+
+### Sprint 3–4 — Hỗ trợ ghép hệ thống
+
+- [ ] Sửa schema nếu BE/FE phát hiện thiếu field  
+- [ ] Đảm bảo index + seed room mẫu (2 người + nhóm) ổn  
+- [ ] Hỗ trợ Vân debug query / migration
+
+
+
+### Sprint 5–6 — Ổn định
+
+- [ ] Seed idempotent (chạy lại không lỗi)  
+- [ ] Backup hướng dẫn reset DB local trong README  
+- [ ] (Tuỳ chọn) chính sách xóa user/room — chỉ nếu còn thời gian
+
+
+
+### Sprint 7 — Docker / README máy sạch
+
+- [ ] Hoàn thiện README bước chạy (copy `.env`, compose, migrate, seed, FE/BE)  
+- [ ] Test trên máy sạch / máy thành viên khác  
+- [ ] (Tuỳ chọn) đóng gói thêm service app vào compose
+
+
+
+### Sprint 8 — Report + Word (Hiền) + tham gia video
+
+- [ ] Tạo **khung Word** report (bìa, mục lục, heading) + format  
+- [ ] Viết phần: thiết kế hệ thống + Database + Deploy/Docker  
+- [ ] Nháp kết luận → nhóm review  
+- [ ] Gộp bài Vân/Lợi vào Word, xuất PDF  
+- [ ] Tham gia video: nói/demo phần DB/Docker (do **Lợi** quay & dựng — Hiền **không** dựng video)  
