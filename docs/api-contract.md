@@ -147,11 +147,9 @@ FE nên: gặp `UNAUTHORIZED` → xóa token, về màn Login.
 
 
 
-## 6. Backend — Sprint 2 → 8
+## 6. Backend — Sprint 2 → 8 (deadline nộp đủ **05/11/2026**)
 
-
-
-### Sprint 2 — Auth + chat realtime tối thiểu
+### Sprint 2 — Auth + chat realtime tối thiểu · **deadline 25/10/2026**
 
 - [ ] Init `server/` (Node + JS + Express/Fastify + Socket.io)  
 - [ ] `POST /auth/register`, `POST /auth/login` → JWT  
@@ -160,33 +158,25 @@ FE nên: gặp `UNAUTHORIZED` → xóa token, về màn Login.
 - [ ] `join_room` / `send_message` / `receive_message` (2 client chat được)  
 - [ ] Nối Prisma khi Hiền có migrate (hoặc memory tạm rồi thay)
 
-
-
-### Sprint 3–4 — Đủ contract + ghép FE
+### Sprint 3–4 — Đủ contract + ghép FE · **deadline 28/10/2026**
 
 - [ ] `GET /users`, `GET/POST /rooms` (chống trùng chat đôi), `GET .../messages` + cursor  
 - [ ] `typing`, `presence`, `leave_room`  
 - [ ] Rate limit connect / send_message  
 - [ ] Fix theo feedback FE (Lợi)
 
-
-
-### Sprint 5–6 — Ổn định MVP
+### Sprint 5–6 — Ổn định MVP · **deadline 31/10/2026**
 
 - [ ] Xử lý lỗi đúng mã contract (401/403/400/429)  
 - [ ] Test Postman + 2 tab với FE  
 - [ ] Polish / bugfix (không ôm optional)
 
-
-
-### Sprint 7 — Vận hành
+### Sprint 7 — Vận hành · **deadline 02/11/2026**
 
 - [ ] Hỗ trợ Hiền: env, port, CORS, proxy WS nếu cần  
 - [ ] Kiểm tra chạy theo README trên máy sạch
 
+### Sprint 8 — Report + video · **deadline 05/11/2026**
 
-
-### Sprint 8 — Report + video
-
-- [ ] Viết phần report: lý thuyết HTTP vs WS + Security (JWT, rate limit) → gửi **Hiền** gộp Word  
-- [ ] Tham gia video: nói/demo phần Backend (do **Lợi** quay & dựng)  
+- [ ] Viết phần report: lý thuyết HTTP vs WS + Security (JWT, rate limit) → gửi **Hiền** trước **04/11**  
+- [ ] Tham gia video: nói/demo phần Backend (do **Lợi** quay & dựng) trước **05/11**  

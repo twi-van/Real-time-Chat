@@ -178,11 +178,9 @@
 
 
 
-## 6. Frontend— Sprint 2 đến 8
+## 6. Frontend — Sprint 2 đến 8 (deadline nộp đủ **05/11/2026**)
 
-
-
-### Sprint 2 — Skeleton UI + auth + socket cơ bản
+### Sprint 2 — Skeleton UI + auth + socket · **deadline 25/10/2026**
 
 - [ ] Init Vite React JS + Tailwind trong `client/`
 - [ ] Màn Login / Register (gọi API hoặc mock tạm)
@@ -190,9 +188,7 @@
 - [ ] `useSocket`: connect JWT, `join_room`, gửi/nhận tin
 - [x] Figma khớp 2 nút (đã chốt Sprint 1)
 
-
-
-### Sprint 3–4 — Đủ MVP UI
+### Sprint 3–4 — Đủ MVP UI · **deadline 28/10/2026**
 
 - [ ] Modal Chat mới + Tạo nhóm (`GET /users`, `POST /rooms`)
 - [ ] Sidebar: tên đối phương / tên nhóm; preview tin
@@ -201,25 +197,19 @@
 - [ ] Đăng xuất (xóa token + disconnect)
 - [ ] Nối BE thật, bỏ mock
 
-
-
-### Sprint 5–6 — Ổn định MVP
+### Sprint 5–6 — Ổn định MVP · **deadline 31/10/2026**
 
 - [ ] Responsive cơ bản, UX lỗi (toast 401 → login)
 - [ ] Test 2 tab: room đôi + room nhóm
 - [ ] Fix bug / polish (không ôm media/search)
 
-
-
-### Sprint 7 — Demo sẵn sàng
+### Sprint 7 — Demo sẵn sàng · **deadline 02/11/2026**
 
 - [ ] Chạy theo README cùng Hiền/Vân
 - [ ] Chuẩn bị tài khoản demo trên UI
 
+### Sprint 8 — Report + video · **deadline 05/11/2026**
 
-
-### Sprint 8 — Report + video
-
-- [ ] Viết report: so sánh WS vs SSE/Long Polling + Implementation Frontend 
-- [ ] Quay và dựng video tối đa 20 phút (chủ trì): có tiếng, đủ 3 thành viên nói phần mình
+- [ ] Viết report: so sánh WS vs SSE/Long Polling + Implementation Frontend → gửi **Hiền** trước **04/11**
+- [ ] Quay và dựng video tối đa 20 phút (chủ trì): có tiếng, đủ 3 thành viên — xong trước **05/11**
 - [ ] Demo UI trên video + ghép phần Vân/Hiền

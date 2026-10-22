@@ -169,47 +169,37 @@ Cùng password: `123456`
 
 
 
-## 6. Database & DevOps — Sprint 2 → 8
+## 6. Database & DevOps — Sprint 2 → 8 (deadline nộp đủ **05/11/2026**)
 
-
-
-### Sprint 2 — DB chạy được
+### Sprint 2 — DB chạy được · **deadline 25/10/2026**
 
 - [ ] Viết `server/prisma/schema.prisma` đúng cột mục 1.1  
-- [ ] `prisma migrate` + `db seed` ([a@a.com](mailto:a@a.com) / [b@b.com](mailto:b@b.com) / [c@c.com](mailto:c@c.com))  
+- [ ] `prisma migrate` + `db seed` (a@a.com / b@b.com / c@c.com, pass `123456`)  
 - [ ] `docker compose` Postgres khớp `.env.example`  
 - [ ] Báo Vân `DATABASE_URL` + cách chạy migrate
 
-
-
-### Sprint 3–4 — Hỗ trợ ghép hệ thống
+### Sprint 3–4 — Hỗ trợ ghép hệ thống · **deadline 28/10/2026**
 
 - [ ] Sửa schema nếu BE/FE phát hiện thiếu field  
 - [ ] Đảm bảo index + seed room mẫu (2 người + nhóm) ổn  
 - [ ] Hỗ trợ Vân debug query / migration
 
-
-
-### Sprint 5–6 — Ổn định
+### Sprint 5–6 — Ổn định · **deadline 31/10/2026**
 
 - [ ] Seed idempotent (chạy lại không lỗi)  
 - [ ] Backup hướng dẫn reset DB local trong README  
 - [ ] (Tuỳ chọn) chính sách xóa user/room — chỉ nếu còn thời gian
 
-
-
-### Sprint 7 — Docker / README máy sạch
+### Sprint 7 — Docker / README máy sạch · **deadline 02/11/2026**
 
 - [ ] Hoàn thiện README bước chạy (copy `.env`, compose, migrate, seed, FE/BE)  
 - [ ] Test trên máy sạch / máy thành viên khác  
+- [ ] Tạo **khung Word** report (bìa, mục lục, heading) + format  
 - [ ] (Tuỳ chọn) đóng gói thêm service app vào compose
 
+### Sprint 8 — Report + Word + tham gia video · **deadline 05/11/2026**
 
-
-### Sprint 8 — Report + Word (Hiền) + tham gia video
-
-- [ ] Tạo **khung Word** report (bìa, mục lục, heading) + format  
-- [ ] Viết phần: thiết kế hệ thống + Database + Deploy/Docker  
+- [ ] Viết phần: thiết kế hệ thống + Database + Deploy/Docker (draft **04/11**)  
 - [ ] Nháp kết luận → nhóm review  
-- [ ] Gộp bài Vân/Lợi vào Word, xuất PDF  
+- [ ] Gộp bài Vân/Lợi vào Word, xuất PDF — **05/11**  
 - [ ] Tham gia video: nói/demo phần DB/Docker (do **Lợi** quay & dựng — Hiền **không** dựng video)  

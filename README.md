@@ -111,10 +111,12 @@ Cùng mật khẩu: **`123456`**
 
 ---
 
-## Bài nộp
+## Bài nộp — deadline **05/11/2026**
 
 - Report (Word + PDF) — **Hiền** khung Word & gộp; mỗi người viết phần mình  
 - Source code + README này  
 - Video ≤ 20 phút — **Lợi** quay & dựng; cả 3 xuất hiện/nói phần mình  
+
+Lịch từng sprint: xem [`PHAN_CONG.md`](./PHAN_CONG.md).
 
 **Không làm** slide / thuyết trình trên lớp.

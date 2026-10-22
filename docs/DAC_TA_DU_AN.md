@@ -103,16 +103,18 @@ wedgk/
 
 ---
 
-## 7. Milestone
+## 7. Milestone & deadline (nộp đủ **05/11/2026**)
 
-| Tuần | Mục tiêu |
-|------|----------|
-| **1** | Chốt 3 tài liệu · skeleton |
-| **2** | Auth + gửi/nhận tin realtime |
-| **3–4** | Typing + presence + ghép FE–BE–DB |
-| **5–6** | Ổn định MVP |
-| **7** | Docker / README máy sạch |
-| **8** | Report + video ≤ 20 phút |
+| Sprint | Deadline | Mục tiêu |
+|--------|----------|----------|
+| **1** | **22/10** (Done) | Chốt 3 tài liệu |
+| **2** | **25/10** | Auth + chat realtime tối thiểu |
+| **3–4** | **28/10** | Typing + presence + ghép FE–BE–DB |
+| **5–6** | **31/10** | Ổn định MVP |
+| **7** | **02/11** | Docker / README máy sạch |
+| **8** | **05/11** | Report + video → **nộp đủ bài** |
+
+Chi tiết từng người: `PHAN_CONG.md` + mục Sprint trong 3 file docs.
 
 ---
 
