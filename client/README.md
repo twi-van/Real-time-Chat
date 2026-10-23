@@ -17,3 +17,15 @@ Tuần 1: điền `docs/ui-outline.md` rồi scaffold:
 ```bash
 npm create vite@latest . -- --template react
 ```
+
+---
+
+## Hướng dẫn chạy chi tiết
+
+Xem tài liệu đầy đủ tại: **[HUONG_DAN_CHAY.md](./HUONG_DAN_CHAY.md)**
+
+```bash
+cd client
+npm install
+npm run dev
+```
