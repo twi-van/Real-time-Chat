@@ -83,7 +83,7 @@ cp .env.example .env
 docker compose up -d
 
 cd server && npm install && npx prisma migrate dev && npx prisma db seed && npm run dev
-# → http://localhost:3000
+# → http://localhost:4000
 
 cd client && npm install && npm run dev
 # → http://localhost:5173
