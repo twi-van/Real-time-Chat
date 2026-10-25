@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(uuid()) @db.Uuid
+  email        String       @unique
+  passwordHash String       @map("password_hash")
+  displayName  String       @map("display_name")
+  createdAt    DateTime     @default(now()) @map("created_at")
+
+  createdRooms Room[]       @relation("RoomCreator")
+  memberships  RoomMember[]
+  messages     Message[]
+
+  @@map("users")
+}
+
+model Room {
+  id          String       @id @default(uuid()) @db.Uuid
+  name        String?
+  createdById String       @map("created_by_id") @db.Uuid
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  createdBy   User         @relation("RoomCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  members     RoomMember[]
+  messages    Message[]
+
+  @@index([createdById])
+  @@map("rooms")
+}
+
+model RoomMember {
+  roomId   String   @map("room_id") @db.Uuid
+  userId   String   @map("user_id") @db.Uuid
+  joinedAt DateTime @default(now()) @map("joined_at")
+
+  room     Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([roomId, userId])
+  @@index([userId])
+  @@map("room_members")
+}
+
+model Message {
+  id        String   @id @default(uuid()) @db.Uuid
+  roomId    String   @map("room_id") @db.Uuid
+  senderId  String   @map("sender_id") @db.Uuid
+  content   String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@unique([createdAt, id])
+  @@index([roomId, createdAt(sort: Desc), id(sort: Desc)])
+  @@map("messages")
+}
