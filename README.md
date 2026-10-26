@@ -29,6 +29,8 @@
 
 ---
 
+
+
 ## 1. Giới thiệu
 
 Ứng dụng web **chat thời gian thực** minh họa Topic 9: kết nối WebSocket bền vững, giao tiếp hai chiều, event và server push.
@@ -59,11 +61,15 @@ Trên giao diện: **Chat mới** / **Tạo nhóm** — cùng endpoint `POST /ro
 | 8   | Docker Postgres + README      | Chạy được trên máy khác           |
 
 
+
+
 ### Ngoài phạm vi MVP
 
 Tách type `DIRECT`/`GROUP`, join bằng link/mã, reply, reaction, search, gửi ảnh, WebRTC.
 
 ---
+
+
 
 ## 2. Công nghệ
 
@@ -78,17 +84,21 @@ Tách type `DIRECT`/`GROUP`, join bằng link/mã, reply, reaction, search, gử
 
 ---
 
+
+
 ## 3. Phân công
 
 
-| Thành viên | Vai trò           | Phạm vi chính                                             |
-| ---------- | ----------------- | --------------------------------------------------------- |
-| Thùy Vân   | Backend           | REST API, Socket.io, JWT, rate limit (`server/src`)       |
-| Kim Lợi    | Frontend          | React UI, gọi API / socket (`client/`)                    |
-| Diệu Hiền  | Database & DevOps | Prisma schema / migrate / seed, Docker, README §5–8 & §10 |
+| Thành viên | Vai trò           | Phạm vi chính                                       |
+| ---------- | ----------------- | --------------------------------------------------- |
+| Thùy Vân   | Backend           | REST API, Socket.io, JWT, rate limit (`server/src`) |
+| Kim Lợi    | Frontend          | React UI, gọi API / socket (`client/`)              |
+| Diệu Hiền  | Database & DevOps | Prisma schema / migrate / seed, Docker              |
 
 
 ---
+
+
 
 ## 4. Cấu trúc thư mục
 
@@ -111,38 +121,40 @@ wedgk/
 
 ---
 
+
+
 ## 5. Yêu cầu môi trường
 
 > **Phụ trách: Diệu Hiền** — bổ sung phần mềm cần cài (Node, Docker, …) và cách kiểm tra.
 
-
-
 ---
+
+
 
 ## 6. Cổng dịch vụ
 
 > **Phụ trách: Diệu Hiền** — liệt kê cổng Frontend / Backend / PostgreSQL (khớp `.env.example` và `docker-compose.yml`).
 
-
-
 ---
+
+
 
 ## 7. Hướng dẫn cài đặt và chạy
 
 > **Phụ trách: Diệu Hiền** — viết đủ bước: copy `.env` → `docker compose` → migrate → seed → chạy Backend → chạy Frontend.  
 > Làm trên máy mình rồi ghi đúng lệnh đã chạy được.
 
-
-
 ---
+
+
 
 ## 8. Tài khoản demo
 
 > **Phụ trách: Diệu Hiền** — ghi email / mật khẩu sau seed (xem `server/prisma/seed.js`).
 
-
-
 ---
+
+
 
 ## 9. Kiểm thử nghiệm thu
 
@@ -165,6 +177,9 @@ node scripts/smoke-sprint56.js
 
 ---
 
+
+
 ## 10. Dừng và reset dữ liệu
 
 > **Phụ trách: Diệu Hiền** — cách dừng FE/BE/Docker và reset DB local rồi seed lại.
+
