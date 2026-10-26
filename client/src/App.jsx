@@ -25,8 +25,14 @@ export default function App() {
     };
 
     window.addEventListener('auth:unauthorized', handleUnauthorizedEvent);
+    const handleChatError = (e) => {
+      setToastMessage(e.detail?.message || 'Đã xảy ra lỗi khi kết nối chat.');
+      setTimeout(() => setToastMessage(''), 4500);
+    };
+    window.addEventListener('chat:error', handleChatError);
     return () => {
       window.removeEventListener('auth:unauthorized', handleUnauthorizedEvent);
+      window.removeEventListener('chat:error', handleChatError);
     };
   }, []);
 

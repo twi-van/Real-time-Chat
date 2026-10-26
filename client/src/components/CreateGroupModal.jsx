@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Search, Check, UserPlus } from 'lucide-react';
 import { api } from '../api';
 
-export default function CreateGroupModal({ isOpen, onClose, onRoomCreated }) {
+export default function CreateGroupModal({ isOpen, onClose, onRoomCreated, onlineUsers = {} }) {
   const [groupName, setGroupName] = useState('');
   const [users, setUsers] = useState([]);
   const [selectedUserIds, setSelectedUserIds] = useState([]);
@@ -51,6 +51,10 @@ export default function CreateGroupModal({ isOpen, onClose, onRoomCreated }) {
         name: groupName.trim(),
         memberIds: selectedUserIds
       });
+      if (!room) {
+        setError('Không thể tạo nhóm. Vui lòng thử lại.');
+        return;
+      }
       onRoomCreated(room);
       onClose();
     } catch {
@@ -103,10 +107,20 @@ export default function CreateGroupModal({ isOpen, onClose, onRoomCreated }) {
                 type="text"
                 placeholder="Nhập tên nhóm"
                 value={groupName}
-                onChange={(e) => setGroupName(e.target.value)}
-                required
-                className="w-full px-4 py-2.5 bg-slate-50/80 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all"
+                onChange={(e) => {
+                  setGroupName(e.target.value);
+                  if (error) setError('');
+                }}
+                aria-invalid={error === 'Vui lòng nhập tên nhóm'}
+                className={`w-full px-4 py-2.5 bg-slate-50/80 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 transition-all ${
+                  error === 'Vui lòng nhập tên nhóm'
+                    ? 'border border-rose-400 focus:ring-rose-500/20 focus:border-rose-500'
+                    : 'border border-slate-200 focus:ring-indigo-500/20 focus:border-indigo-600'
+                }`}
               />
+              {error === 'Vui lòng nhập tên nhóm' && (
+                <p className="mt-1.5 text-[11px] font-medium text-rose-600">Vui lòng nhập tên nhóm</p>
+              )}
             </div>
 
             {/* Header Danh sách chọn thành viên */}
@@ -123,6 +137,7 @@ export default function CreateGroupModal({ isOpen, onClose, onRoomCreated }) {
             <div className="max-h-56 overflow-y-auto space-y-1.5 pr-1">
               {users.map(user => {
                 const isSelected = selectedUserIds.includes(user.id);
+                const isOnline = onlineUsers[user.id] ?? !!user.isOnline;
                 return (
                   <div
                     key={user.id}
@@ -138,13 +153,13 @@ export default function CreateGroupModal({ isOpen, onClose, onRoomCreated }) {
                         <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-emerald-400 to-teal-500 text-white font-semibold text-xs flex items-center justify-center shadow-sm">
                           {user.displayName?.slice(0, 2).toUpperCase() || 'US'}
                         </div>
-                        {user.isOnline && (
+                        {isOnline && (
                           <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></span>
                         )}
                       </div>
                       <div>
                         <h4 className="text-xs font-semibold text-slate-900">{user.displayName}</h4>
-                        <p className="text-[11px] text-slate-400">{user.isOnline ? 'Đang hoạt động' : 'Ngoại tuyến'}</p>
+                        <p className="text-[11px] text-slate-400">{isOnline ? 'Đang hoạt động' : 'Ngoại tuyến'}</p>
                       </div>
                     </div>
 
@@ -170,7 +185,7 @@ export default function CreateGroupModal({ isOpen, onClose, onRoomCreated }) {
             </button>
             <button
               type="submit"
-              disabled={loading || !groupName.trim() || selectedUserIds.length < 2}
+              disabled={loading}
               className="flex items-center gap-1.5 px-5 py-2.5 text-xs font-semibold text-white bg-[#4f46e5] hover:bg-[#4338ca] rounded-xl shadow-md shadow-indigo-600/20 disabled:opacity-50 cursor-pointer transition-all"
             >
               <UserPlus className="w-3.5 h-3.5" />

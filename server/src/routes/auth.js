@@ -1,75 +1,110 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
-
-const {
-    createUser,
-    findUserByEmail,
-    publicUser,
-} = require("../lib/store");
-
+const { prisma } = require("../lib/prisma");
+const { publicUser } = require("../lib/store");
 const { signToken } = require("../lib/jwt");
 const { sendError } = require("../lib/errors");
+const { authMiddleware } = require("../middleware/auth");
+const { asyncHandler } = require("../lib/asyncHandler");
+const { allowAuthAttempt } = require("../lib/rateLimit");
 
 const router = express.Router();
 
-router.post("/register",async(req,res) => {
-    const { email,password,displayName} = req.body || {};
+function authKey(req, email) {
+  const ip = req.ip || req.socket?.remoteAddress || "unknown";
+  return `${ip}:${String(email || "").toLowerCase()}`;
+}
 
-    if(!email || !password || !displayName){ //bỏ trống
-        return sendError (
-            res,
-            400,
-            "VALIDATION_ERROR",
-            "email,password,displayName are required"
-        );
+router.post(
+  "/register",
+  asyncHandler(async (req, res) => {
+    const { email, password, displayName } = req.body || {};
+
+    if (!email || !password || !displayName) {
+      return sendError(
+        res,
+        400,
+        "VALIDATION_ERROR",
+        "email, password, displayName are required"
+      );
     }
 
-    if(findUserByEmail(email)){ //trùng email
-        return sendError (res,400,"VALIDATION_ERROR","Email already registered")
+    if (String(password).length < 6) {
+      return sendError(
+        res,
+        400,
+        "VALIDATION_ERROR",
+        "password must be at least 6 characters"
+      );
     }
 
-    const passwordHash = await bcrypt.hash(String(password),10);
-    const user = createUser({ //ghi user vào map
-        email,
-        passwordHash,
-        displayName: String(displayName),
+    if (!allowAuthAttempt(authKey(req, email))) {
+      return sendError(res, 429, "RATE_LIMITED");
+    }
+
+    const normalizedEmail = String(email).toLowerCase().trim();
+    const existing = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
     });
-    const token = signToken(user.id);
+    if (existing) {
+      return sendError(res, 400, "VALIDATION_ERROR", "Email already registered");
+    }
+
+    const passwordHash = await bcrypt.hash(String(password), 10);
+    const user = await prisma.user.create({
+      data: {
+        email: normalizedEmail,
+        passwordHash,
+        displayName: String(displayName).trim(),
+      },
+    });
 
     return res.status(201).json({
-        user: publicUser(user),
-        token,
+      user: publicUser(user),
+      token: signToken(user.id),
     });
+  })
+);
+
+router.post(
+  "/login",
+  asyncHandler(async (req, res) => {
+    const { email, password } = req.body || {};
+
+    if (!email || !password) {
+      return sendError(
+        res,
+        400,
+        "VALIDATION_ERROR",
+        "email and password are required"
+      );
+    }
+
+    if (!allowAuthAttempt(authKey(req, email))) {
+      return sendError(res, 429, "RATE_LIMITED");
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: String(email).toLowerCase().trim() },
+    });
+    if (!user) {
+      return sendError(res, 401, "UNAUTHORIZED", "Invalid email or password");
+    }
+
+    const ok = await bcrypt.compare(String(password), user.passwordHash);
+    if (!ok) {
+      return sendError(res, 401, "UNAUTHORIZED", "Invalid email or password");
+    }
+
+    return res.json({
+      user: publicUser(user),
+      token: signToken(user.id),
+    });
+  })
+);
+
+router.get("/me", authMiddleware, (req, res) => {
+  return res.json({ user: req.user });
 });
 
-// ---LOGIN ---
-router.post("/login",async(req,res)=>{
-    const{email,password} = req.body || {};
-
-    if(!email || !password){
-        return sendError (
-            res,
-            400,
-            "VALIDATION_ERROR",
-            "email and password are required"
-        );
-    }
-    const user = findUserByEmail(email);
-    if(!user){
-        return sendError(res,401, "UNAUTHORIZED", "Invalid email or password");
-    }
-    const ok = await bcrypt.compare(String(password),user.passwordHash); //gõ lại password comapre
-    if(!ok){
-        return sendError(res, 401, "UNAUTHORIZED", "Invalid email or password");
-    }
-    const token = signToken(user.id);
-    return res.json({ //trả về user và token
-        user: publicUser(user),
-        token,
-  });
-});
-const {authMiddleware} = require("../middleware/auth");
-    router.get("/me",authMiddleware,(req,res) => { 
-        return res.json({ user: req.user });
-    });
 module.exports = router;

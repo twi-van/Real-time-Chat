@@ -15,7 +15,7 @@
 | POST   | `/auth/register`      | Không | Đăng ký                               | `email`, `password`, `displayName`       | `user`, `token`                                  |
 | POST   | `/auth/login`         | Không | Đăng nhập                             | `email`, `password`                      | `user`, `token`                                  |
 | GET    | `/users`              | JWT   | List user (modal Chat mới / Tạo nhóm) | `q?` tuỳ chọn                            | `users[]`: `id`, `displayName`, `email`          |
-| GET    | `/rooms`              | JWT   | Room của mình                         | —                                        | `rooms[]` (kèm `members` hoặc đủ để FE hiện tên) |
+| GET    | `/rooms`              | JWT   | Room của mình                         | —                                        | `rooms[]` + `members` + `lastMessage?` `{ content, createdAt, senderId }` (null nếu chưa có tin) |
 | POST   | `/rooms`              | JWT   | Tạo room                              | xem note dưới                            | `room`                                           |
 | GET    | `/rooms/:id/messages` | JWT   | Lịch sử tin                           | `cursor?`, `limit?` (max 50, default 30) | `messages[]`, `nextCursor?`                      |
 
@@ -23,7 +23,7 @@
 **Model room (chốt MVP):** chỉ **một loại room** — không có `type` `DIRECT` / `GROUP`.  
 Chat 2 người hay nhiều người đều là room + `memberIds`; khác nhau ở số thành viên.
 
-**`POST /rooms`:**
+`POST /rooms`**:**
 
 ```json
 { "memberIds": ["id1"] }
@@ -149,32 +149,42 @@ FE nên: gặp `UNAUTHORIZED` → xóa token, về màn Login.
 
 ## 6. Backend — Sprint 2 → 8 (deadline nộp đủ **05/11/2026**)
 
+
+
 ### Sprint 2 — Auth + chat realtime tối thiểu · **deadline 25/10/2026**
 
-- [ ] Init `server/` (Node + JS + Express/Fastify + Socket.io)  
-- [ ] `POST /auth/register`, `POST /auth/login` → JWT  
-- [ ] Middleware JWT cho REST  
-- [ ] Socket connect + verify `auth.token`  
-- [ ] `join_room` / `send_message` / `receive_message` (2 client chat được)  
-- [ ] Nối Prisma khi Hiền có migrate (hoặc memory tạm rồi thay)
+- [x] Init `server/` (Node + JS + Express/Fastify + Socket.io)  
+- [x] `POST /auth/register`, `POST /auth/login` → JWT  
+- [x] Middleware JWT cho REST  
+- [x] Socket connect + verify `auth.token`  
+- [x] `join_room` / `send_message` / `receive_message` (2 client chat được)  
+- [x] Nối Prisma khi Hiền có migrate (hoặc memory tạm rồi thay)
+
+
 
 ### Sprint 3–4 — Đủ contract + ghép FE · **deadline 28/10/2026**
 
-- [ ] `GET /users`, `GET/POST /rooms` (chống trùng chat đôi), `GET .../messages` + cursor  
-- [ ] `typing`, `presence`, `leave_room`  
-- [ ] Rate limit connect / send_message  
-- [ ] Fix theo feedback FE (Lợi)
+- [x] `GET /users`, `GET/POST /rooms` (chống trùng chat đôi), `GET .../messages` + cursor  
+- [x] `typing`, `presence`, `leave_room`  
+- [x] Rate limit connect / send_message  
+- [x] Fix theo feedback FE (Lợi) — FE đã nối API/socket (`9c9a5fd`); còn lệch nhỏ (sidebar presence) do FE
+
+
 
 ### Sprint 5–6 — Ổn định MVP · **deadline 31/10/2026**
 
-- [ ] Xử lý lỗi đúng mã contract (401/403/400/429)  
-- [ ] Test Postman + 2 tab với FE  
-- [ ] Polish / bugfix (không ôm optional)
+- [x] Xử lý lỗi đúng mã contract (401/403/400/429) + errorHandler Prisma  
+- [x] Test smoke REST/socket (`server/scripts/smoke-sprint56.js`) + khuyến nghị test 2 tab UI  
+- [x] Polish / bugfix (validate UUID, độ dài tin, rate limit auth, asyncHandler)
+
+
 
 ### Sprint 7 — Vận hành · **deadline 02/11/2026**
 
 - [ ] Hỗ trợ Hiền: env, port, CORS, proxy WS nếu cần  
 - [ ] Kiểm tra chạy theo README trên máy sạch
+
+
 
 ### Sprint 8 — Report + video · **deadline 05/11/2026**
 

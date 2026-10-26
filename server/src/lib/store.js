@@ -1,73 +1,40 @@
-const { randomUUID } = require("crypto");
+/** Helpers dùng chung — data nằm ở Postgres qua Prisma. */
 
-const usersById  = new Map();
-const usersByEmail = new Map();
-const roomsById = new Map();
-const messagesById = new Map();
-
-function createRoom({name,memberIds,createdById}){
-  const room = {
-    id: randomUUID(),
-    name: name ?? null,
-    createdById,
-    memberIds: [...new Set(memberIds)],
-    createdAt: new Date(),
-  };
-  roomsById.set(room.id, room);
-  return room;
-}
-function findRoomById(id) {
-  return roomsById.get(id) || null;
-}
-function isRoomMember(roomId, userId) {
-  const room = findRoomById(roomId);
-  return Boolean(room && room.memberIds.includes(userId));
-}
-function createMessage({ roomId, senderId, content }) {
-  const message = {
-    id: randomUUID(),
-    roomId,
-    senderId,
-    content: String(content).trim(),
-    createdAt: new Date(),
-  };
-  messagesById.set(message.id, message);
-  return message;
-}
-function publicUser(user){
+function publicUser(user) {
   return {
-    id : user.id,
-    email : user.email,
+    id: user.id,
+    email: user.email,
     displayName: user.displayName,
   };
 }
 
-function createUser({ email, passwordHash, displayName }) {
-  const user = {
-    id: randomUUID(),
-    email: email.toLowerCase().trim(),
-    passwordHash,
-    displayName: displayName.trim(),
-    createdAt: new Date(),
+function lastMessageResponse(message) {
+  if (!message) return null;
+  return {
+    content: message.content,
+    createdAt: message.createdAt,
+    senderId: message.senderId,
   };
-  usersById.set(user.id,user);
-  usersByEmail.set(user.email, user);
-  return user;
 }
-function findUserByEmail(email){
-  return usersByEmail.get(String(email).toLowerCase().trim()) || null;
+
+function roomResponse(room) {
+  const members = (room.members || [])
+    .map((m) => m.user || m)
+    .filter(Boolean)
+    .map(publicUser);
+
+  // GET /rooms có thể include messages take 1 (mới nhất)
+  const latest =
+    room.lastMessage ||
+    (Array.isArray(room.messages) ? room.messages[0] : null);
+
+  return {
+    id: room.id,
+    name: room.name,
+    createdAt: room.createdAt,
+    members,
+    lastMessage: lastMessageResponse(latest),
+  };
 }
-function findUserById(id) {
-  return usersById.get(id) || null;
-}
-module.exports = {
-  publicUser,
-  createUser,
-  findUserByEmail,
-  findUserById,
-  createRoom,
-  findRoomById,
-  isRoomMember,
-  createMessage,
-  roomsById
-};
+
+module.exports = { publicUser, roomResponse };

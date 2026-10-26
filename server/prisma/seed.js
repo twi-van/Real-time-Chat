@@ -10,7 +10,7 @@ const prisma = new PrismaClient();
 async function main() {
   const passwordHash = await bcrypt.hash("123456", 10);
 
-  // 1. Upsert 3 tài khoản demo
+  // Chỉ seed 3 tài khoản demo (không tạo room / tin sẵn — demo sạch)
   const userA = await prisma.user.upsert({
     where: { email: "a@a.com" },
     update: { passwordHash, displayName: "An" },
@@ -46,78 +46,6 @@ async function main() {
     b: userB.email,
     c: userC.email,
   });
-
-  // 2. Tạo room 2 người (An + Bình, name = null) — idempotent (chống trùng)
-  const candidateDirectRooms = await prisma.room.findMany({
-    where: {
-      name: null,
-      AND: [
-        { members: { some: { userId: userA.id } } },
-        { members: { some: { userId: userB.id } } },
-      ],
-    },
-    include: { members: true },
-  });
-
-  let directRoom = candidateDirectRooms.find((r) => r.members.length === 2);
-
-  if (!directRoom) {
-    directRoom = await prisma.room.create({
-      data: {
-        name: null,
-        createdById: userA.id,
-        members: {
-          create: [{ userId: userA.id }, { userId: userB.id }],
-        },
-        messages: {
-          create: [
-            {
-              senderId: userA.id,
-              content: "Chào Bình! Đây là phòng chat đôi giữa An và Bình.",
-            },
-          ],
-        },
-      },
-    });
-    console.log("Created 2-member room (An + Bình):", directRoom.id);
-  } else {
-    console.log("2-member room (An + Bình) already exists:", directRoom.id);
-  }
-
-  // 3. Tạo room nhóm "Nhóm demo" (An + Bình + Chi) — idempotent
-  let groupRoom = await prisma.room.findFirst({
-    where: {
-      name: "Nhóm demo",
-      createdById: userA.id,
-    },
-  });
-
-  if (!groupRoom) {
-    groupRoom = await prisma.room.create({
-      data: {
-        name: "Nhóm demo",
-        createdById: userA.id,
-        members: {
-          create: [
-            { userId: userA.id },
-            { userId: userB.id },
-            { userId: userC.id },
-          ],
-        },
-        messages: {
-          create: [
-            {
-              senderId: userA.id,
-              content: "Chào mọi người trong Nhóm demo!",
-            },
-          ],
-        },
-      },
-    });
-    console.log("Created group room 'Nhóm demo':", groupRoom.id);
-  } else {
-    console.log("Group room 'Nhóm demo' already exists:", groupRoom.id);
-  }
 }
 
 main()
