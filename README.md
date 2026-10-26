@@ -125,7 +125,16 @@ wedgk/
 
 ## 5. Yêu cầu môi trường
 
-> **Phụ trách: Diệu Hiền** — bổ sung phần mềm cần cài (Node, Docker, …) và cách kiểm tra.
+Để cài đặt và chạy dự án trên máy local, cần chuẩn bị các phần mềm sau:
+
+| Phần mềm               | Phiên bản yêu cầu | Lệnh kiểm tra phiên bản                      |
+| ---------------------- | ----------------- | -------------------------------------------- |
+| **Node.js**            | `>= 20.x`         | `node -v`                                    |
+| **npm**                | `>= 10.x`         | `npm -v`                                     |
+| **Docker & Compose**   | Docker Desktop    | `docker -v` và `docker compose version`      |
+| **Git**                | Bất kỳ            | `git --version`                              |
+
+> **Lưu ý:** Đảm bảo Docker Desktop đang chạy trước khi khởi tạo cơ sở dữ liệu PostgreSQL, và các cổng `5173` (Frontend), `4000` (Backend), `5439` (PostgreSQL) không bị chiếm dụng bởi ứng dụng khác.
 
 ---
 
@@ -133,7 +142,13 @@ wedgk/
 
 ## 6. Cổng dịch vụ
 
-> **Phụ trách: Diệu Hiền** — liệt kê cổng Frontend / Backend / PostgreSQL (khớp `.env.example` và `docker-compose.yml`).
+Các cổng mặc định được cấu hình trong `.env.example`, `client/.env.example` và `docker-compose.yml`:
+
+| Dịch vụ                       | Cổng (Host) | Cổng (Container) | Địa chỉ / Kết nối mặc định                                          |
+| ----------------------------- | ----------- | ---------------- | ------------------------------------------------------------------- |
+| **Frontend (React + Vite)**   | `5173`      | —                | `http://localhost:5173`                                             |
+| **Backend (Express + WS)**    | `4000`      | —                | `http://localhost:4000` (REST API & Socket.io)                      |
+| **Database (PostgreSQL 16)**  | `5439`      | `5432`           | `postgresql://postgres:postgres@localhost:5439/wedgk_chat?schema=public` |
 
 ---
 
@@ -141,8 +156,70 @@ wedgk/
 
 ## 7. Hướng dẫn cài đặt và chạy
 
-> **Phụ trách: Diệu Hiền** — viết đủ bước: copy `.env` → `docker compose` → migrate → seed → chạy Backend → chạy Frontend.  
-> Làm trên máy mình rồi ghi đúng lệnh đã chạy được.
+Thực hiện lần lượt các bước dưới đây từ thư mục gốc của dự án:
+
+### Bước 1: Thiết lập biến môi trường (`.env`)
+
+Copy các file mẫu `.env.example` thành `.env` ở thư mục gốc, thư mục `server` (cho Prisma CLI) và thư mục `client`:
+
+**Trên Windows (PowerShell):**
+```powershell
+Copy-Item .env.example .env
+Copy-Item .env.example server/.env
+Copy-Item client/.env.example client/.env
+```
+
+**Trên macOS / Linux (Bash):**
+```bash
+cp .env.example .env
+cp .env.example server/.env
+cp client/.env.example client/.env
+```
+
+*(Các giá trị mặc định trong `.env.example` đã khớp sẵn với cấu hình Docker Compose ở cổng `5439` và Backend ở cổng `4000`).*
+
+### Bước 2: Khởi động PostgreSQL bằng Docker Compose
+
+```bash
+docker compose up -d
+```
+
+Kiểm tra container `db` đã chạy (`Up`):
+```bash
+docker compose ps
+```
+
+### Bước 3: Cài đặt thư viện, chạy Migration và Seed dữ liệu (Backend)
+
+```bash
+cd server
+npm install
+npm run db:migrate
+npm run db:seed
+```
+
+### Bước 4: Chạy Backend Server
+
+Giữ terminal tại thư mục `server/` và chạy:
+
+```bash
+npm run dev
+```
+
+Backend sẽ chạy tại `http://localhost:4000` (có thể kiểm tra nhanh bằng `http://localhost:4000/health`).
+
+### Bước 5: Cài đặt và chạy Frontend (Client)
+
+Mở một **terminal mới** từ thư mục gốc dự án:
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+Truy cập ứng dụng trên trình duyệt tại địa chỉ: `http://localhost:5173`
+
 
 ---
 
@@ -150,7 +227,13 @@ wedgk/
 
 ## 8. Tài khoản demo
 
-> **Phụ trách: Diệu Hiền** — ghi email / mật khẩu sau seed (xem `server/prisma/seed.js`).
+Sau khi chạy lệnh `npm run db:seed` (từ file `server/prisma/seed.js`), hệ thống khởi tạo sẵn **3 tài khoản demo** (chưa tạo sẵn room hay tin nhắn để tiện kiểm thử từ đầu):
+
+| STT | Tên hiển thị (`displayName`) | Email       | Mật khẩu |
+| --- | ---------------------------- | ----------- | -------- |
+| 1   | **An**                       | `a@a.com`   | `123456` |
+| 2   | **Bình**                     | `b@b.com`   | `123456` |
+| 3   | **Chi**                      | `c@c.com`   | `123456` |
 
 ---
 
@@ -181,5 +264,33 @@ node scripts/smoke-sprint56.js
 
 ## 10. Dừng và reset dữ liệu
 
-> **Phụ trách: Diệu Hiền** — cách dừng FE/BE/Docker và reset DB local rồi seed lại.
+### Dừng các dịch vụ đang chạy
+
+1. **Dừng Frontend & Backend:** Nhấn tổ hợp phím `Ctrl + C` tại mỗi cửa sổ terminal đang chạy `npm run dev`.
+2. **Dừng container PostgreSQL (giữ nguyên dữ liệu DB):**
+   ```bash
+   docker compose stop
+   ```
+   Hoặc tắt và gỡ container (vẫn giữ volume `pgdata`):
+   ```bash
+   docker compose down
+   ```
+
+### Reset toàn bộ dữ liệu Database và Seed lại từ đầu
+
+**Cách 1: Reset bằng Prisma (khi Docker PostgreSQL đang chạy)**
+```bash
+cd server
+npx prisma migrate reset --force
+```
+*(Lệnh này sẽ tự động xóa sạch dữ liệu, áp dụng lại toàn bộ migrations và tự chạy lại `prisma/seed.js`).*
+
+**Cách 2: Xóa hẳn Docker Volume (`pgdata`) và khởi tạo lại**
+```bash
+docker compose down -v
+docker compose up -d
+cd server
+npm run db:migrate
+npm run db:seed
+```
 
