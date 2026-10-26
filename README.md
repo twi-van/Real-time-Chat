@@ -168,5 +168,3 @@ node scripts/smoke-sprint56.js
 ## 10. Dừng và reset dữ liệu
 
 > **Phụ trách: Diệu Hiền** — cách dừng FE/BE/Docker và reset DB local rồi seed lại.
-
-*(Để trống — Hiền viết.)*
