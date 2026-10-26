@@ -2,7 +2,18 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import { api } from '../api';
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:4000';
+
+function notifySocketError(code) {
+  const messages = {
+    RATE_LIMITED: 'Bạn gửi quá nhanh. Vui lòng thử lại sau.',
+    FORBIDDEN: 'Bạn không có quyền gửi tin nhắn trong phòng này.',
+    VALIDATION_ERROR: 'Tin nhắn không hợp lệ. Vui lòng thử lại.',
+  };
+  window.dispatchEvent(new CustomEvent('chat:error', {
+    detail: { message: messages[code] || 'Không gửi được tin nhắn. Vui lòng thử lại.' },
+  }));
+}
 
 export function useSocket(token, activeRoomId, onMessageReceived, onPresenceUpdate, onTypingUpdate) {
   const socketRef = useRef(null);
@@ -63,7 +74,10 @@ export function useSocket(token, activeRoomId, onMessageReceived, onPresenceUpda
     // Event S -> C: receive_message
     socket.on('receive_message', (msg) => {
       if (onMessageRef.current) {
-        onMessageRef.current(msg);
+        onMessageRef.current({
+          ...msg,
+          senderId: msg.senderId ?? msg.sender?.id,
+        });
       }
     });
 
@@ -100,13 +114,17 @@ export function useSocket(token, activeRoomId, onMessageReceived, onPresenceUpda
 
   // Gửi tin nhắn
   const sendMessage = useCallback((content) => {
-    if (!activeRoomId || !content.trim()) return null;
+    if (!activeRoomId || !content.trim()) return false;
 
     const socket = socketRef.current;
     if (socket && isConnected) {
-      socket.emit('send_message', { roomId: activeRoomId, content });
-      return null;
-    } else {
+      socket.emit('send_message', { roomId: activeRoomId, content }, (result) => {
+        if (result?.error) notifySocketError(result.error);
+      });
+      return true;
+    }
+
+    if (token?.startsWith('mock-jwt-token-')) {
       // Khi BE chưa chạy socket, mô phỏng lưu mock tin nhắn ngay lập tức
       const mockMsg = api.sendMockMessage(activeRoomId, content);
       if (onMessageRef.current) {
@@ -132,9 +150,14 @@ export function useSocket(token, activeRoomId, onMessageReceived, onPresenceUpda
         }, 1500);
       }
 
-      return mockMsg;
+      return true;
     }
-  }, [activeRoomId, isConnected]);
+
+    window.dispatchEvent(new CustomEvent('chat:error', {
+      detail: { message: 'Mất kết nối máy chủ. Tin nhắn chưa được gửi.' },
+    }));
+    return false;
+  }, [activeRoomId, isConnected, token]);
 
   // Gửi event typing
   const sendTyping = useCallback((isTyping) => {

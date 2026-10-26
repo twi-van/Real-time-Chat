@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Search, Check, UserPlus } from 'lucide-react';
 import { api } from '../api';
 
-export default function CreateGroupModal({ isOpen, onClose, onRoomCreated }) {
+export default function CreateGroupModal({ isOpen, onClose, onRoomCreated, onlineUsers = {} }) {
   const [groupName, setGroupName] = useState('');
   const [users, setUsers] = useState([]);
   const [selectedUserIds, setSelectedUserIds] = useState([]);
@@ -51,6 +51,10 @@ export default function CreateGroupModal({ isOpen, onClose, onRoomCreated }) {
         name: groupName.trim(),
         memberIds: selectedUserIds
       });
+      if (!room) {
+        setError('Không thể tạo nhóm. Vui lòng thử lại.');
+        return;
+      }
       onRoomCreated(room);
       onClose();
     } catch {
@@ -123,6 +127,7 @@ export default function CreateGroupModal({ isOpen, onClose, onRoomCreated }) {
             <div className="max-h-56 overflow-y-auto space-y-1.5 pr-1">
               {users.map(user => {
                 const isSelected = selectedUserIds.includes(user.id);
+                const isOnline = onlineUsers[user.id] ?? !!user.isOnline;
                 return (
                   <div
                     key={user.id}
@@ -138,13 +143,13 @@ export default function CreateGroupModal({ isOpen, onClose, onRoomCreated }) {
                         <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-emerald-400 to-teal-500 text-white font-semibold text-xs flex items-center justify-center shadow-sm">
                           {user.displayName?.slice(0, 2).toUpperCase() || 'US'}
                         </div>
-                        {user.isOnline && (
+                        {isOnline && (
                           <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></span>
                         )}
                       </div>
                       <div>
                         <h4 className="text-xs font-semibold text-slate-900">{user.displayName}</h4>
-                        <p className="text-[11px] text-slate-400">{user.isOnline ? 'Đang hoạt động' : 'Ngoại tuyến'}</p>
+                        <p className="text-[11px] text-slate-400">{isOnline ? 'Đang hoạt động' : 'Ngoại tuyến'}</p>
                       </div>
                     </div>
 

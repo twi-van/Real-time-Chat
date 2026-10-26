@@ -2,17 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { X, Search, Check, MessageSquare, Users } from 'lucide-react';
 import { api } from '../api';
 
-export default function NewChatModal({ isOpen, onClose, onRoomCreated }) {
+export default function NewChatModal({ isOpen, onClose, onRoomCreated, onlineUsers = {} }) {
   const [users, setUsers] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (isOpen) {
       loadUsers();
       setSelectedUserId(null);
       setSearch('');
+      setError('');
     }
   }, [isOpen]);
 
@@ -24,14 +26,21 @@ export default function NewChatModal({ isOpen, onClose, onRoomCreated }) {
   const handleStartChat = async () => {
     if (!selectedUserId) return;
     setLoading(true);
+    setError('');
     try {
       // POST /rooms: { memberIds: [selectedUserId] }
       const room = await api.createRoom({
         name: null,
         memberIds: [selectedUserId]
       });
+      if (!room) {
+        setError('Không thể tạo cuộc trò chuyện. Vui lòng thử lại.');
+        return;
+      }
       onRoomCreated(room);
       onClose();
+    } catch (err) {
+      setError(err.message || 'Không thể tạo cuộc trò chuyện lúc này');
     } finally {
       setLoading(false);
     }
@@ -83,11 +92,17 @@ export default function NewChatModal({ isOpen, onClose, onRoomCreated }) {
 
         {/* User List */}
         <div className="px-6 py-3 max-h-60 overflow-y-auto space-y-1.5">
+          {error && (
+            <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-medium">
+              {error}
+            </div>
+          )}
           <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
             Thành viên ({filteredUsers.length})
           </div>
           {filteredUsers.map(user => {
             const isSelected = selectedUserId === user.id;
+            const isOnline = onlineUsers[user.id] ?? !!user.isOnline;
             return (
               <div
                 key={user.id}
@@ -103,13 +118,13 @@ export default function NewChatModal({ isOpen, onClose, onRoomCreated }) {
                     <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-400 to-teal-500 text-white font-semibold text-xs flex items-center justify-center shadow-sm">
                       {user.displayName?.slice(0, 2).toUpperCase() || 'US'}
                     </div>
-                    {user.isOnline && (
+                    {isOnline && (
                       <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></span>
                     )}
                   </div>
                   <div>
                     <h4 className="text-xs font-semibold text-slate-900">{user.displayName}</h4>
-                    <p className="text-[11px] text-slate-400">{user.isOnline ? 'Đang hoạt động' : 'Ngoại tuyến'}</p>
+                    <p className="text-[11px] text-slate-400">{isOnline ? 'Đang hoạt động' : 'Ngoại tuyến'}</p>
                   </div>
                 </div>
 

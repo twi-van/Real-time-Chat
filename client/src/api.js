@@ -1,6 +1,22 @@
 import { MOCK_USERS, MOCK_INITIAL_ROOMS, MOCK_INITIAL_MESSAGES, MOCK_VERSION } from './mockData';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+
+const unwrapList = (payload, key) => {
+  if (Array.isArray(payload)) return payload;
+  return Array.isArray(payload?.[key]) ? payload[key] : [];
+};
+
+const normalizeMessage = (message) => ({
+  ...message,
+  senderId: message.senderId ?? message.sender?.id,
+});
+
+const normalizeMessagesResponse = (payload) => ({
+  ...payload,
+  messages: unwrapList(payload, 'messages').map(normalizeMessage),
+  nextCursor: payload?.nextCursor ?? null,
+});
 
 class ApiService {
   constructor() {
@@ -66,6 +82,11 @@ class ApiService {
         this.setSession(data.user, data.token);
         return { success: true, data };
       }
+      const error = await res.json().catch(() => ({}));
+      return {
+        success: false,
+        message: error.message || error.error || 'Đăng nhập không thành công',
+      };
     } catch {
       // Backend offline -> fallback mock
     }
@@ -98,6 +119,11 @@ class ApiService {
         this.setSession(data.user, data.token);
         return { success: true, data };
       }
+      const error = await res.json().catch(() => ({}));
+      return {
+        success: false,
+        message: error.message || error.error || 'Đăng ký không thành công',
+      };
     } catch {
       // Backend offline -> fallback mock
     }
@@ -119,7 +145,8 @@ class ApiService {
         this.handleUnauthorized();
         return [];
       }
-      if (res.ok) return await res.json();
+      if (res.ok) return unwrapList(await res.json(), 'users');
+      return [];
     } catch {
       // Backend offline
     }
@@ -134,7 +161,8 @@ class ApiService {
         this.handleUnauthorized();
         return [];
       }
-      if (res.ok) return await res.json();
+      if (res.ok) return unwrapList(await res.json(), 'rooms');
+      return [];
     } catch {
       // Backend offline
     }
@@ -152,7 +180,11 @@ class ApiService {
         this.handleUnauthorized();
         return null;
       }
-      if (res.ok) return await res.json();
+      if (res.ok) {
+        const payload = await res.json();
+        return payload?.room ?? payload;
+      }
+      return null;
     } catch {
       // Backend offline
     }
@@ -199,7 +231,8 @@ class ApiService {
         this.handleUnauthorized();
         return { messages: [], nextCursor: null };
       }
-      if (res.ok) return await res.json();
+      if (res.ok) return normalizeMessagesResponse(await res.json());
+      return { messages: [], nextCursor: null };
     } catch {
       // Backend offline -> fallback mock
     }

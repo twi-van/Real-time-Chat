@@ -23,6 +23,7 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [isTypingMap, setIsTypingMap] = useState({}); // { [roomId]: { userId, displayName } }
+  const [presenceByUser, setPresenceByUser] = useState({});
   const [mobileView, setMobileView] = useState('sidebar'); // 'sidebar' | 'chat'
   
   const [nextCursor, setNextCursor] = useState(null);
@@ -38,6 +39,7 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const typingTimerRef = useRef(null);
+  const remoteTypingTimersRef = useRef({});
   const activeRoomIdRef = useRef(activeRoomId);
 
   useEffect(() => {
@@ -56,10 +58,14 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
 
   // Callback nhận tin nhắn từ Socket / Mock
   const handleMessageReceived = (msg) => {
-    if (msg.roomId === activeRoomIdRef.current) {
+    const normalizedMessage = {
+      ...msg,
+      senderId: msg.senderId ?? msg.sender?.id,
+    };
+    if (normalizedMessage.roomId === activeRoomIdRef.current) {
       setMessages(prev => {
-        if (prev.some(m => m.id === msg.id)) return prev;
-        return [...prev, msg];
+        if (prev.some(m => m.id === normalizedMessage.id)) return prev;
+        return [...prev, normalizedMessage];
       });
       // Tự động cuộn xuống đáy khi có tin mới tới (kể cả mình gửi hoặc đối phương gửi)
       setTimeout(() => scrollToBottom('smooth'), 50);
@@ -67,13 +73,13 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
 
     // Cập nhật preview tin mới nhất ở sidebar
     setRooms(prev => prev.map(r => {
-      if (r.id === msg.roomId) {
+      if (r.id === normalizedMessage.roomId) {
         return {
           ...r,
           lastMessage: {
-            content: msg.content,
-            createdAt: msg.createdAt,
-            senderId: msg.senderId
+            content: normalizedMessage.content,
+            createdAt: normalizedMessage.createdAt,
+            senderId: normalizedMessage.senderId
           }
         };
       }
@@ -84,6 +90,9 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
   // Callback trạng thái typing
   const handleTypingUpdate = ({ roomId, userId, isTyping }) => {
     if (userId === currentUser?.id) return;
+    const existingTimer = remoteTypingTimersRef.current[roomId];
+    if (existingTimer) clearTimeout(existingTimer);
+
     setIsTypingMap(prev => {
       if (isTyping) {
         // Tìm tên thành viên
@@ -96,10 +105,24 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
         return next;
       }
     });
+
+    if (isTyping) {
+      remoteTypingTimersRef.current[roomId] = setTimeout(() => {
+        setIsTypingMap(prev => {
+          const next = { ...prev };
+          delete next[roomId];
+          return next;
+        });
+        delete remoteTypingTimersRef.current[roomId];
+      }, 5000);
+    } else {
+      delete remoteTypingTimersRef.current[roomId];
+    }
   };
 
   // Callback presence
   const handlePresenceUpdate = ({ userId, status }) => {
+    setPresenceByUser(prev => ({ ...prev, [userId]: status === 'online' }));
     setRooms(prev => prev.map(r => ({
       ...r,
       members: r.members?.map(m => m.id === userId ? { ...m, isOnline: status === 'online' } : m)
@@ -203,10 +226,11 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
     if (!inputText.trim() || !activeRoomId) return;
 
     const content = inputText.trim();
-    setInputText('');
-    sendTyping(false);
-    sendMessage(content);
-    setTimeout(() => scrollToBottom('smooth'), 50);
+    if (sendMessage(content)) {
+      setInputText('');
+      sendTyping(false);
+      setTimeout(() => scrollToBottom('smooth'), 50);
+    }
   };
 
   // Xử lý gõ phím -> trigger typing indicator
@@ -230,11 +254,12 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
 
     if (isTwoMembers) {
       const other = members.find(m => m.id !== currentUser?.id) || members[0];
+      const isOnline = presenceByUser[other?.id] ?? !!other?.isOnline;
       return {
         title: other?.displayName || 'Người dùng',
         isGroup: false,
-        isOnline: !!other?.isOnline,
-        subtitle: other?.isOnline ? 'Đang hoạt động' : 'Ngoại tuyến',
+        isOnline,
+        subtitle: isOnline ? 'Đang hoạt động' : 'Ngoại tuyến',
         avatarText: other?.displayName?.slice(0, 2).toUpperCase() || 'TV'
       };
     } else {
@@ -547,6 +572,7 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
       {/* Modals */}
       <NewChatModal
         isOpen={isNewChatOpen}
+        onlineUsers={presenceByUser}
         onClose={() => setIsNewChatOpen(false)}
         onRoomCreated={(newRoom) => {
           setRooms(prev => [newRoom, ...prev.filter(r => r.id !== newRoom.id)]);
@@ -557,6 +583,7 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
 
       <CreateGroupModal
         isOpen={isCreateGroupOpen}
+        onlineUsers={presenceByUser}
         onClose={() => setIsCreateGroupOpen(false)}
         onRoomCreated={(newRoom) => {
           setRooms(prev => [newRoom, ...prev.filter(r => r.id !== newRoom.id)]);
