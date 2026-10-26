@@ -433,7 +433,7 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
                     {activeRoomInfo.isGroup ? `# ${activeRoomInfo.title}` : activeRoomInfo.title}
                   </h1>
                   <p className="text-[11px] text-slate-400 flex items-center gap-1.5 mt-0.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    <span className={`w-1.5 h-1.5 rounded-full ${activeRoomInfo.isGroup ? 'bg-slate-400' : activeRoomInfo.isOnline ? 'bg-emerald-500' : 'bg-slate-400'}`}></span>
                     <span>{activeRoomInfo.subtitle}</span>
                   </p>
                 </div>
