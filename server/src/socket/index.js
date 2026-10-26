@@ -75,6 +75,12 @@ function registerSocket(io) {
       status: "online",
     });
 
+    // Gửi trạng thái hiện tại tới tab vừa kết nối, kể cả các user đã online
+    // trước đó (nếu không, tab mới chỉ nhận được sự kiện presence trong tương lai).
+    for (const userId of onlineSockets.keys()) {
+      socket.emit("presence", { userId, status: "online" });
+    }
+
     socket.on("join_room", async (payload = {}, ack) => {
       try {
         const roomId = payload.roomId;
