@@ -182,7 +182,7 @@ const rooms = await prisma.room.findMany({
 - [x] **Chống trùng chat đôi (MVP):** không tạo trùng room đúng 2 thành viên cho cùng một cặp user — logic ở BE khi `POST /rooms`; room nhóm không áp dụng  
 - [x] Chính sách xóa: `onDelete: Cascade` trên các bảng phụ thuộc (`RoomMember`, `Message`)  
 
-> Khớp `docs/api-contract.md` và `server/prisma/schema.prisma`.
+Khớp `docs/api-contract.md` và `server/prisma/schema.prisma`.
 
 ---
 
