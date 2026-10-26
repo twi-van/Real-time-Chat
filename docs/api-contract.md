@@ -15,7 +15,7 @@
 | POST   | `/auth/register`      | Không | Đăng ký                               | `email`, `password`, `displayName`       | `user`, `token`                                  |
 | POST   | `/auth/login`         | Không | Đăng nhập                             | `email`, `password`                      | `user`, `token`                                  |
 | GET    | `/users`              | JWT   | List user (modal Chat mới / Tạo nhóm) | `q?` tuỳ chọn                            | `users[]`: `id`, `displayName`, `email`          |
-| GET    | `/rooms`              | JWT   | Room của mình                         | —                                        | `rooms[]` (kèm `members` hoặc đủ để FE hiện tên) |
+| GET    | `/rooms`              | JWT   | Room của mình                         | —                                        | `rooms[]` + `members` + `lastMessage?` `{ content, createdAt, senderId }` (null nếu chưa có tin) |
 | POST   | `/rooms`              | JWT   | Tạo room                              | xem note dưới                            | `room`                                           |
 | GET    | `/rooms/:id/messages` | JWT   | Lịch sử tin                           | `cursor?`, `limit?` (max 50, default 30) | `messages[]`, `nextCursor?`                      |
 

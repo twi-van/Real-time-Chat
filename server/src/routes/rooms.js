@@ -14,6 +14,15 @@ const roomInclude = {
   members: { include: { user: true } },
 };
 
+/** Tin mới nhất cho sidebar preview (FE: room.lastMessage) */
+const roomListInclude = {
+  ...roomInclude,
+  messages: {
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    take: 1,
+  },
+};
+
 async function assertRoomMember(roomId, userId) {
   const row = await prisma.roomMember.findUnique({
     where: { roomId_userId: { roomId, userId } },
@@ -28,7 +37,7 @@ router.get(
       where: {
         members: { some: { userId: req.user.id } },
       },
-      include: roomInclude,
+      include: roomListInclude,
       orderBy: { createdAt: "desc" },
     });
     return res.json({ rooms: rooms.map(roomResponse) });
