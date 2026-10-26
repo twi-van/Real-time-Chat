@@ -20,41 +20,49 @@
 
 #### User (`@@map("users")`)
 
-| Trường (Prisma/JS) | Cột DB (`@map`) | Kiểu           | Ghi chú                      |
-| ------------------ | --------------- | -------------- | ---------------------------- |
-| `id`               | `id`            | UUID           | PK (`@default(uuid())`)      |
-| `email`            | `email`         | String         | Unique, dùng đăng nhập       |
-| `passwordHash`     | `password_hash` | String         | bcrypt (không lưu plaintext) |
-| `displayName`      | `display_name`  | String         | Tên hiển thị                 |
-| `createdAt`        | `created_at`    | DateTime       | `@default(now())`            |
+
+| Trường (Prisma/JS) | Cột DB (`@map`) | Kiểu     | Ghi chú                      |
+| ------------------ | --------------- | -------- | ---------------------------- |
+| `id`               | `id`            | UUID     | PK (`@default(uuid())`)      |
+| `email`            | `email`         | String   | Unique, dùng đăng nhập       |
+| `passwordHash`     | `password_hash` | String   | bcrypt (không lưu plaintext) |
+| `displayName`      | `display_name`  | String   | Tên hiển thị                 |
+| `createdAt`        | `created_at`    | DateTime | `@default(now())`            |
+
 
 #### Room (`@@map("rooms")`)
 
-| Trường (Prisma/JS) | Cột DB (`@map`) | Kiểu           | Ghi chú                                                                                            |
-| ------------------ | --------------- | -------------- | -------------------------------------------------------------------------------------------------- |
-| `id`               | `id`            | UUID           | PK (`@default(uuid())`)                                                                            |
-| `name`             | `name`          | String?        | **Nullable** khi chat đôi (FE hiện tên đối phương); **bắt buộc** khi tạo nhóm (≥ 2 người được mời) |
-| `createdById`      | `created_by_id` | UUID           | FK → `User.id`                                                                                     |
-| `createdAt`        | `created_at`    | DateTime       | `@default(now())`                                                                                  |
+
+| Trường (Prisma/JS) | Cột DB (`@map`) | Kiểu     | Ghi chú                                                                                            |
+| ------------------ | --------------- | -------- | -------------------------------------------------------------------------------------------------- |
+| `id`               | `id`            | UUID     | PK (`@default(uuid())`)                                                                            |
+| `name`             | `name`          | String?  | **Nullable** khi chat đôi (FE hiện tên đối phương); **bắt buộc** khi tạo nhóm (≥ 2 người được mời) |
+| `createdById`      | `created_by_id` | UUID     | FK → `User.id`                                                                                     |
+| `createdAt`        | `created_at`    | DateTime | `@default(now())`                                                                                  |
+
 
 #### RoomMember (`@@map("room_members")`)
 
-| Trường (Prisma/JS) | Cột DB (`@map`) | Kiểu           | Ghi chú                                                 |
-| ------------------ | --------------- | -------------- | ------------------------------------------------------- |
-| `roomId`           | `room_id`       | UUID           | FK → `Room.id` (`onDelete: Cascade`)                    |
-| `userId`           | `user_id`       | UUID           | FK → `User.id` (`onDelete: Cascade`)                    |
-| `joinedAt`         | `joined_at`     | DateTime       | `@default(now())`                                       |
-| —                  | —               | Composite PK   | **`@@id([roomId, userId])`** (kiêm Unique cặp room–user)|
+
+| Trường (Prisma/JS) | Cột DB (`@map`) | Kiểu         | Ghi chú                                              |
+| ------------------ | --------------- | ------------ | ---------------------------------------------------- |
+| `roomId`           | `room_id`       | UUID         | FK → `Room.id` (`onDelete: Cascade`)                 |
+| `userId`           | `user_id`       | UUID         | FK → `User.id` (`onDelete: Cascade`)                 |
+| `joinedAt`         | `joined_at`     | DateTime     | `@default(now())`                                    |
+| —                  | —               | Composite PK | `@@id([roomId, userId])` (kiêm Unique cặp room–user) |
+
 
 #### Message (`@@map("messages")`)
 
-| Trường (Prisma/JS) | Cột DB (`@map`) | Kiểu           | Ghi chú                              |
-| ------------------ | --------------- | -------------- | ------------------------------------ |
-| `id`               | `id`            | UUID           | PK (`@default(uuid())`)              |
-| `roomId`           | `room_id`       | UUID           | FK → `Room.id` (`onDelete: Cascade`) |
-| `senderId`         | `sender_id`     | UUID           | FK → `User.id` (`onDelete: Cascade`) |
-| `content`          | `content`       | Text / String  | Nội dung tin (`@db.Text`)            |
-| `createdAt`        | `created_at`    | DateTime       | `@default(now())`                    |
+
+| Trường (Prisma/JS) | Cột DB (`@map`) | Kiểu          | Ghi chú                              |
+| ------------------ | --------------- | ------------- | ------------------------------------ |
+| `id`               | `id`            | UUID          | PK (`@default(uuid())`)              |
+| `roomId`           | `room_id`       | UUID          | FK → `Room.id` (`onDelete: Cascade`) |
+| `senderId`         | `sender_id`     | UUID          | FK → `User.id` (`onDelete: Cascade`) |
+| `content`          | `content`       | Text / String | Nội dung tin (`@db.Text`)            |
+| `createdAt`        | `created_at`    | DateTime      | `@default(now())`                    |
+
 
 **Không lưu DB (MVP):** typing, presence — chỉ qua Socket.
 
@@ -66,7 +74,7 @@
 - **User–Room** (1-N): qua `Room.createdById` (`createdBy`).
 - **Room–Message** (1-N): qua `Message.roomId`.
 - **User–Message** (1-N): qua `Message.senderId`.
-- **Chính sách xóa (`onDelete: Cascade`):**
+- **Chính sách xóa (**`onDelete: Cascade`**):**
   - Khi xóa `Room` → tự động xóa `RoomMember` và `Message` thuộc room đó.
   - Khi xóa `User` → tự động xóa `RoomMember`, `Message` của user (thuận tiện khi reset/seed dữ liệu test).
 
@@ -90,15 +98,17 @@ Thứ tự bảng khởi tạo:
 
 Cùng password: `123456`
 
+
 | Email     | Password | displayName |
 | --------- | -------- | ----------- |
 | `a@a.com` | `123456` | An          |
 | `b@b.com` | `123456` | Bình        |
 | `c@c.com` | `123456` | Chi         |
 
+
 - Hash bằng **bcrypt** trước khi ghi `passwordHash`.  
 - Upsert theo email.  
-- Thêm: 1 room 2 người (An+Bình, `name: null`) + 1 room nhóm `Nhóm demo` (An+Bình+Chi).  
+- Chỉ seed **user** (không tạo room / tin sẵn — demo sạch trên UI).  
 - Chỉ dùng local/test.
 
 ---
@@ -119,7 +129,7 @@ Cùng password: `123456`
 - Cursor = cặp `(createdAt, id)`  
 - `limit` mặc định **30**, tối đa **50**  
 - Chỉ trả tin nếu user là member của room.
-- **Cách query khuyến nghị ở BE (`GET /rooms/:id/messages`):**
+- **Cách query khuyến nghị ở BE (**`GET /rooms/:id/messages`**):**
   ```js
   const messages = await prisma.message.findMany({
     where: {
@@ -191,25 +201,26 @@ const rooms = await prisma.room.findMany({
 ### Sprint 2 — DB chạy được · **deadline 25/10/2026**
 
 - [x] Viết `server/prisma/schema.prisma` đúng cột mục 1.1  
-- [x] `prisma migrate` + `db seed` (a@a.com / b@b.com / c@c.com, pass `123456`)  
+- [x] `prisma migrate` + `db seed` ([a@a.com](mailto:a@a.com) / [b@b.com](mailto:b@b.com) / [c@c.com](mailto:c@c.com), pass `123456`)  
 - [x] `docker compose` Postgres khớp `.env.example`  
 - [x] Báo Vân `DATABASE_URL` + cách chạy migrate
 
 ### Sprint 3–4 — Hỗ trợ ghép hệ thống · **deadline 28/10/2026**
 
-- [ ] Sửa schema nếu BE/FE phát hiện thiếu field  
-- [ ] Đảm bảo index + seed room mẫu (2 người + nhóm) ổn  
-- [ ] Hỗ trợ Vân debug query / migration
+- [x] Sửa schema nếu BE/FE phát hiện thiếu field (MVP đủ; không thiếu cột)  
+- [x] Đảm bảo **index** ổn (members `userId`; messages cursor `(roomId, createdAt, id)`)  
+- [x] Seed **chỉ 3 user** demo (`a@a.com` / `b@b.com` / `c@c.com`) — **không** seed room / tin mẫu (demo sạch, tạo room trên UI)  
+- [x] Hỗ trợ Vân debug query / migration. (Vân đã test)
 
 ### Sprint 5–6 — Ổn định · **deadline 31/10/2026**
 
-- [ ] Seed idempotent (chạy lại không lỗi)  
-- [ ] Backup hướng dẫn reset DB local trong README  
+- [ ] Seed idempotent (upsert user theo email; chạy lại không lỗi)  
+- [ ] Hướng dẫn reset DB local trong README (§10)  
 - [ ] (Tuỳ chọn) chính sách xóa user/room nâng cao — chỉ nếu còn thời gian
 
 ### Sprint 7 — Docker / README máy sạch · **deadline 02/11/2026**
 
-- [ ] Hoàn thiện README bước chạy (copy `.env`, compose, migrate, seed, FE/BE)  
+- [ ] Hoàn thiện README bước chạy (copy `.env`, compose, migrate, seed, FE/BE)  (Vân đã làm vào check fix nếu có lỗi ).
 - [ ] Test trên máy sạch / máy thành viên khác  
 - [ ] Tạo **khung Word** report (bìa, mục lục, heading) + format  
 - [ ] (Tuỳ chọn) đóng gói thêm service app vào compose

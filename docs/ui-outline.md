@@ -180,33 +180,43 @@
 
 ## 6. Frontend — Sprint 2 đến 8 (deadline nộp đủ **05/11/2026**)
 
+
+
 ### Sprint 2 — Skeleton UI + auth + socket · **deadline 25/10/2026**
 
-- [ ] Init Vite React JS + Tailwind trong `client/`
-- [ ] Màn Login / Register (gọi API hoặc mock tạm)
-- [ ] Layout Chat (sidebar + khung tin)
-- [ ] `useSocket`: connect JWT, `join_room`, gửi/nhận tin
+- [x] Init Vite React JS + Tailwind trong `client/`
+- [x] Màn Login / Register (gọi API hoặc mock tạm)
+- [x] Layout Chat (sidebar + khung tin)
+- [x] `useSocket`: connect JWT, `join_room`, gửi/nhận tin
 - [x] Figma khớp 2 nút (đã chốt Sprint 1)
+
+
 
 ### Sprint 3–4 — Đủ MVP UI · **deadline 28/10/2026**
 
-- [ ] Modal Chat mới + Tạo nhóm (`GET /users`, `POST /rooms`)
-- [ ] Sidebar: tên đối phương / tên nhóm; preview tin
-- [ ] Typing indicator + online/offline
-- [ ] Load lịch sử + cursor (cuộn lên)
-- [ ] Đăng xuất (xóa token + disconnect)
-- [ ] Nối BE thật, bỏ mock
+- [x] Modal Chat mới + Tạo nhóm (`GET /users`, `POST /rooms`)
+- [x] Sidebar: tên đối phương / tên nhóm; preview tin
+- [x] Typing indicator + online/offline
+- [x] Load lịch sử + cursor (cuộn lên)
+- [x] Đăng xuất (xóa token + disconnect)
+- [x] Nối BE thật, bỏ mock
+
+
 
 ### Sprint 5–6 — Ổn định MVP · **deadline 31/10/2026**
 
-- [ ] Responsive cơ bản, UX lỗi (toast 401 → login)
+- [ ] Responsive cơ bản, UX lỗi (toast 401 → login) 
 - [ ] Test 2 tab: room đôi + room nhóm
 - [ ] Fix bug / polish (không ôm media/search)
+
+
 
 ### Sprint 7 — Demo sẵn sàng · **deadline 02/11/2026**
 
 - [ ] Chạy theo README cùng Hiền/Vân
 - [ ] Chuẩn bị tài khoản demo trên UI
+
+
 
 ### Sprint 8 — Report + video · **deadline 05/11/2026**
 

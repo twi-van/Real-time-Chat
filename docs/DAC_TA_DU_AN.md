@@ -134,8 +134,7 @@ Chi tiết từng người: `PHAN_CONG.md` + mục Sprint trong 3 file docs.
 
 | File | Ai | Mục đích |
 |------|-----|----------|
-| `503073-Midterm.pdf` | — | Đề & rubric |
-| `PHAN_CONG.md` | Nhóm | Phân công |
+| `PHAN_CONG.md` | Nhóm | Phân công (nội bộ) |
 | `README.md` | Hiền + nhóm | Chạy demo |
 | `docs/api-contract.md` | Thùy Vân | API/Socket |
 | `docs/ui-outline.md` | Kim Lợi | UI |

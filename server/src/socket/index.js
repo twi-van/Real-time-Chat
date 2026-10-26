@@ -5,6 +5,7 @@ const {
   allowSocketConnect,
   allowSendMessage,
 } = require("../lib/rateLimit");
+const { isUuid, MAX_MESSAGE_LENGTH } = require("../lib/validate");
 
 async function isRoomMember(roomId, userId) {
   const row = await prisma.roomMember.findUnique({
@@ -83,6 +84,12 @@ function registerSocket(io) {
           }
           return;
         }
+        if (!isUuid(roomId)) {
+          if (typeof ack === "function") {
+            ack({ error: "VALIDATION_ERROR", message: "Invalid room id" });
+          }
+          return;
+        }
         if (!(await isRoomMember(roomId, socket.user.id))) {
           if (typeof ack === "function") ack({ error: "FORBIDDEN" });
           return;
@@ -141,6 +148,21 @@ function registerSocket(io) {
             ack({
               error: "VALIDATION_ERROR",
               message: "roomId and content required",
+            });
+          }
+          return;
+        }
+        if (!isUuid(roomId)) {
+          if (typeof ack === "function") {
+            ack({ error: "VALIDATION_ERROR", message: "Invalid room id" });
+          }
+          return;
+        }
+        if (String(content).trim().length > MAX_MESSAGE_LENGTH) {
+          if (typeof ack === "function") {
+            ack({
+              error: "VALIDATION_ERROR",
+              message: `content max ${MAX_MESSAGE_LENGTH} characters`,
             });
           }
           return;

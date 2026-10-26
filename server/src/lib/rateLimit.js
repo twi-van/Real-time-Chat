@@ -35,4 +35,14 @@ const allowSendMessage = createRateLimiter({
   max: 30,
 });
 
-module.exports = { allowSocketConnect, allowSendMessage };
+/** Login/register: chống spam — 20 lần / phút / IP hoặc email */
+const allowAuthAttempt = createRateLimiter({
+  windowMs: 60_000,
+  max: 20,
+});
+
+module.exports = {
+  allowSocketConnect,
+  allowSendMessage,
+  allowAuthAttempt,
+};

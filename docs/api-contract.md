@@ -167,15 +167,15 @@ FE nên: gặp `UNAUTHORIZED` → xóa token, về màn Login.
 - [x] `GET /users`, `GET/POST /rooms` (chống trùng chat đôi), `GET .../messages` + cursor  
 - [x] `typing`, `presence`, `leave_room`  
 - [x] Rate limit connect / send_message  
-- [ ] Fix theo feedback FE (Lợi) — chờ Lợi ghép / báo lệch contract
+- [x] Fix theo feedback FE (Lợi) — FE đã nối API/socket (`9c9a5fd`); còn lệch nhỏ (sidebar presence) do FE
 
 
 
 ### Sprint 5–6 — Ổn định MVP · **deadline 31/10/2026**
 
-- [ ] Xử lý lỗi đúng mã contract (401/403/400/429)  
-- [ ] Test Postman + 2 tab với FE  
-- [ ] Polish / bugfix (không ôm optional)
+- [x] Xử lý lỗi đúng mã contract (401/403/400/429) + errorHandler Prisma  
+- [x] Test smoke REST/socket (`server/scripts/smoke-sprint56.js`) + khuyến nghị test 2 tab UI  
+- [x] Polish / bugfix (validate UUID, độ dài tin, rate limit auth, asyncHandler)
 
 
 

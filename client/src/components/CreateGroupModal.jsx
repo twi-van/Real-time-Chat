@@ -107,10 +107,20 @@ export default function CreateGroupModal({ isOpen, onClose, onRoomCreated, onlin
                 type="text"
                 placeholder="Nhập tên nhóm"
                 value={groupName}
-                onChange={(e) => setGroupName(e.target.value)}
-                required
-                className="w-full px-4 py-2.5 bg-slate-50/80 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all"
+                onChange={(e) => {
+                  setGroupName(e.target.value);
+                  if (error) setError('');
+                }}
+                aria-invalid={error === 'Vui lòng nhập tên nhóm'}
+                className={`w-full px-4 py-2.5 bg-slate-50/80 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 transition-all ${
+                  error === 'Vui lòng nhập tên nhóm'
+                    ? 'border border-rose-400 focus:ring-rose-500/20 focus:border-rose-500'
+                    : 'border border-slate-200 focus:ring-indigo-500/20 focus:border-indigo-600'
+                }`}
               />
+              {error === 'Vui lòng nhập tên nhóm' && (
+                <p className="mt-1.5 text-[11px] font-medium text-rose-600">Vui lòng nhập tên nhóm</p>
+              )}
             </div>
 
             {/* Header Danh sách chọn thành viên */}
@@ -175,7 +185,7 @@ export default function CreateGroupModal({ isOpen, onClose, onRoomCreated, onlin
             </button>
             <button
               type="submit"
-              disabled={loading || !groupName.trim() || selectedUserIds.length < 2}
+              disabled={loading}
               className="flex items-center gap-1.5 px-5 py-2.5 text-xs font-semibold text-white bg-[#4f46e5] hover:bg-[#4338ca] rounded-xl shadow-md shadow-indigo-600/20 disabled:opacity-50 cursor-pointer transition-all"
             >
               <UserPlus className="w-3.5 h-3.5" />
