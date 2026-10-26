@@ -1,107 +1,188 @@
 const express = require("express");
-const {
-  roomsById,
-  findUserById,
-  publicUser,
-  createRoom,
-  isRoomMember,
-} = require("../lib/store");
+const { prisma } = require("../lib/prisma");
+const { roomResponse, publicUser } = require("../lib/store");
 const { authMiddleware } = require("../middleware/auth");
 const { sendError } = require("../lib/errors");
+const { encodeCursor, decodeCursor } = require("../lib/cursor");
 
 const router = express.Router();
-router.use(authMiddleware); // mọi route dưới đây đều cần token
+router.use(authMiddleware);
 
-// helper: room trong Map → JSON cho FE
-function roomResponse(room) {
-  return {
-    id: room.id,
-    name: room.name,
-    createdAt: room.createdAt,
-    members: room.memberIds
-      .map((id) => findUserById(id))
-      .filter(Boolean)
-      .map(publicUser),
-  };
-}
-router.get("/", (req, res) => {
-    const rooms = [...roomsById.values()]
-      .filter((room) => room.memberIds.includes(req.user.id))
-      .map(roomResponse);
-    return res.json({ rooms });
+const roomInclude = {
+  members: { include: { user: true } },
+};
+
+async function assertRoomMember(roomId, userId) {
+  const row = await prisma.roomMember.findUnique({
+    where: { roomId_userId: { roomId, userId } },
   });
+  return Boolean(row);
+}
 
-  router.post("/", (req, res) => {
-    const { memberIds, name } = req.body || {};
-  
-    if (!Array.isArray(memberIds) || memberIds.length === 0) {
-      return sendError(
-        res,
-        400,
-        "VALIDATION_ERROR",
-        "memberIds must be a non-empty array"
-      );
-    }
-  
-    // Bỏ chính mình nếu FE vô tình gửi; server sẽ tự thêm
-    const invited = [...new Set(memberIds.map(String))].filter(
-      (id) => id !== req.user.id
+router.get("/", async (req, res) => {
+  const rooms = await prisma.room.findMany({
+    where: {
+      members: { some: { userId: req.user.id } },
+    },
+    include: roomInclude,
+    orderBy: { createdAt: "desc" },
+  });
+  return res.json({ rooms: rooms.map(roomResponse) });
+});
+
+router.post("/", async (req, res) => {
+  const { memberIds, name } = req.body || {};
+
+  if (!Array.isArray(memberIds) || memberIds.length === 0) {
+    return sendError(
+      res,
+      400,
+      "VALIDATION_ERROR",
+      "memberIds must be a non-empty array"
     );
-  
-    for (const id of invited) {
-      if (!findUserById(id)) {
-        return sendError(res, 400, "VALIDATION_ERROR", `Unknown member: ${id}`);
-      }
+  }
+
+  const invited = [...new Set(memberIds.map(String))].filter(
+    (id) => id !== req.user.id
+  );
+
+  for (const id of invited) {
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      return sendError(res, 400, "VALIDATION_ERROR", `Unknown member: ${id}`);
     }
-  
-    const allMembers = [...new Set([req.user.id, ...invited])];
-  
-    if (allMembers.length < 2) {
-      return sendError(
-        res,
-        400,
-        "VALIDATION_ERROR",
-        "Room needs at least 2 members"
-      );
-    }
-  
-    // --- Chat đôi: đúng 1 người được mời ---
-    if (invited.length === 1) {
-      const otherId = invited[0];
-      const existing = [...roomsById.values()].find((room) => {
-        if (room.memberIds.length !== 2) return false;
-        return (
-          room.memberIds.includes(req.user.id) &&
-          room.memberIds.includes(otherId)
-        );
-      });
-      if (existing) {
-        return res.json({ room: roomResponse(existing) }); // không tạo mới
-      }
-  
-      const room = createRoom({
+  }
+
+  const allMembers = [...new Set([req.user.id, ...invited])];
+
+  if (allMembers.length < 2) {
+    return sendError(
+      res,
+      400,
+      "VALIDATION_ERROR",
+      "Room needs at least 2 members"
+    );
+  }
+
+  // Chat đôi: 1 người được mời — chống trùng
+  if (invited.length === 1) {
+    const otherId = invited[0];
+    const candidates = await prisma.room.findMany({
+      where: {
         name: null,
-        memberIds: allMembers,
+        AND: [
+          { members: { some: { userId: req.user.id } } },
+          { members: { some: { userId: otherId } } },
+        ],
+      },
+      include: { members: { include: { user: true } } },
+    });
+    const existing = candidates.find((r) => r.members.length === 2);
+    if (existing) {
+      return res.json({ room: roomResponse(existing) });
+    }
+
+    const room = await prisma.room.create({
+      data: {
+        name: null,
         createdById: req.user.id,
-      });
-      return res.status(201).json({ room: roomResponse(room) });
-    }
-  
-    // --- Nhóm: ≥ 2 người mời → name bắt buộc ---
-    if (!name || !String(name).trim()) {
-      return sendError(
-        res,
-        400,
-        "VALIDATION_ERROR",
-        "name is required for group rooms"
-      );
-    }
-  
-    const room = createRoom({
-      name: String(name).trim(),
-      memberIds: allMembers,
-      createdById: req.user.id,
+        members: {
+          create: allMembers.map((userId) => ({ userId })),
+        },
+      },
+      include: roomInclude,
     });
     return res.status(201).json({ room: roomResponse(room) });
+  }
+
+  // Nhóm: name bắt buộc
+  if (!name || !String(name).trim()) {
+    return sendError(
+      res,
+      400,
+      "VALIDATION_ERROR",
+      "name is required for group rooms"
+    );
+  }
+
+  const room = await prisma.room.create({
+    data: {
+      name: String(name).trim(),
+      createdById: req.user.id,
+      members: {
+        create: allMembers.map((userId) => ({ userId })),
+      },
+    },
+    include: roomInclude,
   });
+  return res.status(201).json({ room: roomResponse(room) });
+});
+
+/**
+ * GET /rooms/:id/messages?cursor=&limit=
+ * Cursor (createdAt, id) — lấy tin cũ hơn mốc; không cursor = tin mới nhất.
+ */
+router.get("/:id/messages", async (req, res) => {
+  const roomId = req.params.id;
+
+  if (!(await assertRoomMember(roomId, req.user.id))) {
+    return sendError(res, 403, "FORBIDDEN");
+  }
+
+  let limit = Number(req.query.limit);
+  if (!Number.isFinite(limit) || limit <= 0) limit = 30;
+  if (limit > 50) limit = 50;
+
+  const cursor = decodeCursor(req.query.cursor);
+  if (req.query.cursor && !cursor) {
+    return sendError(res, 400, "VALIDATION_ERROR", "Invalid cursor");
+  }
+
+  const where = {
+    roomId,
+    ...(cursor
+      ? {
+          OR: [
+            { createdAt: { lt: cursor.createdAt } },
+            {
+              AND: [
+                { createdAt: cursor.createdAt },
+                { id: { lt: cursor.id } },
+              ],
+            },
+          ],
+        }
+      : {}),
+  };
+
+  const rows = await prisma.message.findMany({
+    where,
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    take: limit + 1,
+    include: { sender: true },
+  });
+
+  const hasMore = rows.length > limit;
+  const page = hasMore ? rows.slice(0, limit) : rows;
+  // Trả FE theo thời gian tăng dần (cũ → mới)
+  const chronological = [...page].reverse();
+
+  const messages = chronological.map((m) => ({
+    id: m.id,
+    roomId: m.roomId,
+    content: m.content,
+    sender: publicUser(m.sender),
+    createdAt: m.createdAt,
+  }));
+
+  const oldest = page[page.length - 1];
+  const nextCursor =
+    hasMore && oldest ? encodeCursor(oldest.createdAt, oldest.id) : null;
+
+  return res.json({
+    messages,
+    ...(nextCursor ? { nextCursor } : {}),
+  });
+});
+
 module.exports = router;

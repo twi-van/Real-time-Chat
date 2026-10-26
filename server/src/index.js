@@ -5,7 +5,7 @@ const cors = require("cors");
 const { Server } = require("socket.io");
 require("dotenv").config({ path: path.join(__dirname, "../../.env") });
 const roomRoutes = require("./routes/rooms");
-
+const userRoutes = require("./routes/users");
 
 const { registerSocket } = require("./socket");
 const authRoutes = require("./routes/auth");
@@ -28,6 +28,7 @@ app.use(
 app.use(express.json());
 
 app.use("/auth", authRoutes);
+app.use("/users", userRoutes);
 app.use("/rooms", roomRoutes);
 app.get("/health", (_req, res) => {
   res.json({ ok: true });
