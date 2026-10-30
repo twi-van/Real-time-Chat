@@ -3,7 +3,9 @@ const http = require("http");
 const express = require("express");
 const cors = require("cors");
 const { Server } = require("socket.io");
+// README: copy .env.example → .env (gốc) và server/.env
 require("dotenv").config({ path: path.join(__dirname, "../../.env") });
+require("dotenv").config({ path: path.join(__dirname, "../.env") });
 const roomRoutes = require("./routes/rooms");
 const userRoutes = require("./routes/users");
 
