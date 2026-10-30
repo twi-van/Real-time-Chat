@@ -23,7 +23,7 @@ class ApiService {
     this.token = localStorage.getItem('chat_token') || null;
     this.user = JSON.parse(localStorage.getItem('chat_user') || 'null');
 
-    // Kiểm tra version mock data — nếu thay đổi thì tự xóa cache cũ
+    // Kiá»ƒm tra version mock data â€” náº¿u thay Ä‘á»•i thÃ¬ tá»± xÃ³a cache cÅ©
     const savedVersion = localStorage.getItem('mock_version');
     if (savedVersion !== MOCK_VERSION) {
       localStorage.removeItem('mock_rooms');
@@ -65,7 +65,7 @@ class ApiService {
     this.logout();
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('auth:unauthorized', { 
-        detail: { message: 'Phiên đăng nhập đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.' } 
+        detail: { message: 'PhiÃªn Ä‘Äƒng nháº­p Ä‘Ã£ háº¿t háº¡n hoáº·c khÃ´ng há»£p lá»‡. Vui lÃ²ng Ä‘Äƒng nháº­p láº¡i.' } 
       }));
     }
   }
@@ -85,7 +85,7 @@ class ApiService {
       const error = await res.json().catch(() => ({}));
       return {
         success: false,
-        message: error.message || error.error || 'Đăng nhập không thành công',
+        message: error.message || error.error || 'ÄÄƒng nháº­p khÃ´ng thÃ nh cÃ´ng',
       };
     } catch {
       // Backend offline -> fallback mock
@@ -94,7 +94,7 @@ class ApiService {
     // Mock Login
     const found = MOCK_USERS.find(u => u.email.toLowerCase() === email.toLowerCase());
     if (found || email === 'a@a.com') {
-      const user = found || { id: 'u1', email, displayName: 'Kim Lợi' };
+      const user = found || { id: 'u1', email, displayName: 'Kim Lá»£i' };
       const token = 'mock-jwt-token-' + Date.now();
       this.setSession(user, token);
       return { success: true, data: { user, token } };
@@ -122,7 +122,7 @@ class ApiService {
       const error = await res.json().catch(() => ({}));
       return {
         success: false,
-        message: error.message || error.error || 'Đăng ký không thành công',
+        message: error.message || error.error || 'ÄÄƒng kÃ½ khÃ´ng thÃ nh cÃ´ng',
       };
     } catch {
       // Backend offline -> fallback mock
@@ -189,7 +189,7 @@ class ApiService {
       // Backend offline
     }
 
-    // Logic BE mock: chống trùng chat đôi
+    // Logic BE mock: chá»‘ng trÃ¹ng chat Ä‘Ã´i
     if (memberIds.length === 1) {
       const otherId = memberIds[0];
       const existing = this.mockRooms.find(r => 
@@ -202,9 +202,9 @@ class ApiService {
       }
     }
 
-    // Tạo room mới
+    // Táº¡o room má»›i
     const allMembers = [
-      this.user || { id: 'u1', displayName: 'Kim Lợi', email: 'a@a.com' },
+      this.user || { id: 'u1', displayName: 'An', email: 'a@a.com' },
       ...MOCK_USERS.filter(u => memberIds.includes(u.id))
     ];
 
@@ -238,9 +238,9 @@ class ApiService {
     }
 
     const allMessages = this.mockMessages[roomId] || [];
-    // allMessages đang sắp xếp tăng dần theo thời gian (cũ -> mới).
-    // Khi tải ban đầu (không cursor), lấy `limit` tin nhắn mới nhất ở cuối danh sách.
-    // Khi có cursor (id tin nhắn cũ nhất hiện tại trên FE), lấy các tin nhắn xuất hiện trước cursor đó.
+    // allMessages Ä‘ang sáº¯p xáº¿p tÄƒng dáº§n theo thá»i gian (cÅ© -> má»›i).
+    // Khi táº£i ban Ä‘áº§u (khÃ´ng cursor), láº¥y `limit` tin nháº¯n má»›i nháº¥t á»Ÿ cuá»‘i danh sÃ¡ch.
+    // Khi cÃ³ cursor (id tin nháº¯n cÅ© nháº¥t hiá»‡n táº¡i trÃªn FE), láº¥y cÃ¡c tin nháº¯n xuáº¥t hiá»‡n trÆ°á»›c cursor Ä‘Ã³.
     if (!cursor) {
       const startIdx = Math.max(0, allMessages.length - limit);
       const messages = allMessages.slice(startIdx);
@@ -269,7 +269,7 @@ class ApiService {
       senderId: this.user?.id || 'u1',
       sender: {
         id: this.user?.id || 'u1',
-        displayName: this.user?.displayName || 'Kim Lợi'
+        displayName: this.user?.displayName || 'An'
       },
       createdAt: new Date().toISOString()
     };

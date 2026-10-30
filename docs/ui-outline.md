@@ -1,56 +1,56 @@
-# UI Outline
+﻿# UI Outline
 
-**Phụ trách:** Kim Lợi (Frontend)
+**Phá»¥ trÃ¡ch:** Kim Lá»£i (Frontend)
 
-**Trạng thái:** Đã chốt (Sprint 1) — một loại room (không phân DIRECT/GROUP)
+**Tráº¡ng thÃ¡i:** ÄÃ£ chá»‘t (Sprint 1) â€” má»™t loáº¡i room (khÃ´ng phÃ¢n DIRECT/GROUP)
 
-**Figma:** [Xem thiết kế giao diện](https://www.figma.com/design/p9CSveBM2QmF7iGfhQ2dz8/Untitled?node-id=0-1&t=aMD0eCyfjNMRCHv7-1)
+**Figma:** [Xem thiáº¿t káº¿ giao diá»‡n](https://www.figma.com/design/p9CSveBM2QmF7iGfhQ2dz8/Untitled?node-id=0-1&t=aMD0eCyfjNMRCHv7-1)
 
-**MVP UI:** chat theo room thống nhất — có thể 2 người hoặc nhiều người (cùng API tạo room). Không làm Join bằng link.
+**MVP UI:** chat theo room thá»‘ng nháº¥t â€” cÃ³ thá»ƒ 2 ngÆ°á»i hoáº·c nhiá»u ngÆ°á»i (cÃ¹ng API táº¡o room). KhÃ´ng lÃ m Join báº±ng link.
 
 ---
 
-## 1. Các màn hình chính
+## 1. CÃ¡c mÃ n hÃ¬nh chÃ­nh
 
-Ứng dụng gồm 3 màn hình và **2 modal** (cùng gọi `POST /rooms`, khác số người chọn):
+á»¨ng dá»¥ng gá»“m 3 mÃ n hÃ¬nh vÃ  **2 modal** (cÃ¹ng gá»i `POST /rooms`, khÃ¡c sá»‘ ngÆ°á»i chá»n):
 
-### 1.1. Màn hình Đăng nhập (`/login`)
+### 1.1. MÃ n hÃ¬nh ÄÄƒng nháº­p (`/login`)
 
-- Ô: Email, Mật khẩu (bật/tắt xem mật khẩu).
-- Nút Đăng nhập, link sang Đăng ký, gợi ý tài khoản demo.
-
-
-
-### 1.2. Màn hình Đăng ký (`/register`)
-
-- Ô: Tên hiển thị, Email, Mật khẩu, Xác nhận mật khẩu.
-- Nút Đăng ký tài khoản, link sang Đăng nhập.
+- Ã”: Email, Máº­t kháº©u (báº­t/táº¯t xem máº­t kháº©u).
+- NÃºt ÄÄƒng nháº­p, link sang ÄÄƒng kÃ½, gá»£i Ã½ tÃ i khoáº£n demo.
 
 
 
-### 1.3. Màn hình Chat chính (`/chat`)
+### 1.2. MÃ n hÃ¬nh ÄÄƒng kÃ½ (`/register`)
+
+- Ã”: TÃªn hiá»ƒn thá»‹, Email, Máº­t kháº©u, XÃ¡c nháº­n máº­t kháº©u.
+- NÃºt ÄÄƒng kÃ½ tÃ i khoáº£n, link sang ÄÄƒng nháº­p.
+
+
+
+### 1.3. MÃ n hÃ¬nh Chat chÃ­nh (`/chat`)
 
 **Sidebar:**
 
-- User hiện tại (avatar, displayName, online, Đăng xuất).
-- Nút **Chat mới** → modal chọn 1 người (chat đôi).
-- Nút **Tạo nhóm** → modal tên + nhiều người.
-- Danh sách room: tên hiển thị, tin mới nhất, giờ, highlight đang chọn.
-  - Room đúng 2 member (tính cả mình): hiện tên đối phương.
-  - Room nhiều hơn 2 member: hiện `name` nhóm.
+- User hiá»‡n táº¡i (avatar, displayName, online, ÄÄƒng xuáº¥t).
+- NÃºt **Chat má»›i** â†’ modal chá»n 1 ngÆ°á»i (chat Ä‘Ã´i).
+- NÃºt **Táº¡o nhÃ³m** â†’ modal tÃªn + nhiá»u ngÆ°á»i.
+- Danh sÃ¡ch room: tÃªn hiá»ƒn thá»‹, tin má»›i nháº¥t, giá», highlight Ä‘ang chá»n.
+  - Room Ä‘Ãºng 2 member (tÃ­nh cáº£ mÃ¬nh): hiá»‡n tÃªn Ä‘á»‘i phÆ°Æ¡ng.
+  - Room nhiá»u hÆ¡n 2 member: hiá»‡n `name` nhÃ³m.
 
 **Khung chat:**
 
-- Header: tên (đối phương hoặc tên nhóm), online / số thành viên.
-- Vùng tin, typing, ô nhập (Enter gửi, Shift+Enter xuống dòng) + Gửi.
+- Header: tÃªn (Ä‘á»‘i phÆ°Æ¡ng hoáº·c tÃªn nhÃ³m), online / sá»‘ thÃ nh viÃªn.
+- VÃ¹ng tin, typing, Ã´ nháº­p (Enter gá»­i, Shift+Enter xuá»‘ng dÃ²ng) + Gá»­i.
 
 
 
-### 1.4. Modal Chat mới (2 người)
+### 1.4. Modal Chat má»›i (2 ngÆ°á»i)
 
-- `GET /users` → chọn đúng 1 người.
-- Nút Hủy / Bắt đầu chat.
-- Gọi API:
+- `GET /users` â†’ chá»n Ä‘Ãºng 1 ngÆ°á»i.
+- NÃºt Há»§y / Báº¯t Ä‘áº§u chat.
+- Gá»i API:
 
 ```json
 {
@@ -58,18 +58,18 @@
 }
 ```
 
-`POST /rooms` — không gửi `type`; `name` có thể bỏ trống.
+`POST /rooms` â€” khÃ´ng gá»­i `type`; `name` cÃ³ thá»ƒ bá» trá»‘ng.
 
-- Xong → vào room, `join_room` + tải lịch sử.
-- BE chống trùng: nếu đã có room đúng cặp 2 người → API trả room cũ; FE chỉ mở room đó.
+- Xong â†’ vÃ o room, `join_room` + táº£i lá»‹ch sá»­.
+- BE chá»‘ng trÃ¹ng: náº¿u Ä‘Ã£ cÃ³ room Ä‘Ãºng cáº·p 2 ngÆ°á»i â†’ API tráº£ room cÅ©; FE chá»‰ má»Ÿ room Ä‘Ã³.
 
 
 
-### 1.5. Modal Tạo nhóm (từ 3 người kể cả mình)
+### 1.5. Modal Táº¡o nhÃ³m (tá»« 3 ngÆ°á»i ká»ƒ cáº£ mÃ¬nh)
 
-- Ô Tên nhóm (bắt buộc).
-- `GET /users` → checkbox nhiều người.
-- Gọi API:
+- Ã” TÃªn nhÃ³m (báº¯t buá»™c).
+- `GET /users` â†’ checkbox nhiá»u ngÆ°á»i.
+- Gá»i API:
 
 ```json
 {
@@ -78,50 +78,50 @@
 }
 ```
 
-`POST /rooms` — xong → vào room như trên.
+`POST /rooms` â€” xong â†’ vÃ o room nhÆ° trÃªn.
 
 ---
 
 
 
-## 2. Luồng người dùng
+## 2. Luá»“ng ngÆ°á»i dÃ¹ng
 
 ```text
-[Mở Web]
-   |-- Chưa token --> Login/Register --> JWT
-   +-- Có token ------------------------+
+[Má»Ÿ Web]
+   |-- ChÆ°a token --> Login/Register --> JWT
+   +-- CÃ³ token ------------------------+
                                         v
                             [Socket.io + JWT]
                                         v
-                            [Màn Chat]
+                            [MÃ n Chat]
            +-------------+-------------+------------+
            v             v             v            v
-    [Chọn room]   [Chat mới]    [Tạo nhóm]   [Đăng xuất]
+    [Chá»n room]   [Chat má»›i]    [Táº¡o nhÃ³m]   [ÄÄƒng xuáº¥t]
            |             |             |
            |      POST /rooms   POST /rooms
            |      (1 memberId)  (name + nhieu)
            v             +------+------+
     [messages + join]           v
-    [Chat realtime] <---- [Vào room]
+    [Chat realtime] <---- [VÃ o room]
 ```
 
-1. Login/Register → JWT → `/chat`.
-2. Nối socket với token.
-3. Tạo room: Chat mới (1 người) hoặc Tạo nhóm (tên + nhiều) — cùng `POST /rooms`.
-4. Chọn room → lịch sử + `join_room`.
+1. Login/Register â†’ JWT â†’ `/chat`.
+2. Ná»‘i socket vá»›i token.
+3. Táº¡o room: Chat má»›i (1 ngÆ°á»i) hoáº·c Táº¡o nhÃ³m (tÃªn + nhiá»u) â€” cÃ¹ng `POST /rooms`.
+4. Chá»n room â†’ lá»‹ch sá»­ + `join_room`.
 5. Realtime: `typing`, `send_message`, `receive_message`.
-6. Đăng xuất: xóa token + disconnect.
+6. ÄÄƒng xuáº¥t: xÃ³a token + disconnect.
 
-**Không làm MVP:** Join room bằng mã/link.
+**KhÃ´ng lÃ m MVP:** Join room báº±ng mÃ£/link.
 
 ---
 
 
 
-## 3. Typing và Online
+## 3. Typing vÃ  Online
 
-- **Typing:** trên ô nhập — "Ten đang soạn tin..." (khoảng 2.5s tắt).
-- **Presence:** chấm sidebar; header online (room 2 người) hoặc số thành viên (nhóm).
+- **Typing:** trÃªn Ã´ nháº­p â€” "Ten Ä‘ang soáº¡n tin..." (khoáº£ng 2.5s táº¯t).
+- **Presence:** cháº¥m sidebar; header online (room 2 ngÆ°á»i) hoáº·c sá»‘ thÃ nh viÃªn (nhÃ³m).
 
 ---
 
@@ -136,11 +136,11 @@
 
 | State                      | Endpoint                                  | UI                           |
 | -------------------------- | ----------------------------------------- | ---------------------------- |
-| `currentUser`, `token`     | `POST /auth/login`, `POST /auth/register` | Phiên đăng nhập              |
-| `users[]`                  | `GET /users`                              | Hai modal chọn người         |
-| `rooms[]`                  | `GET /rooms`                              | Sidebar (mọi room cùng loại) |
-| `newRoom`                  | `POST /rooms`                             | Tạo room (2 người hoặc nhóm) |
-| `messages[]`, `nextCursor` | `GET /rooms/:id/messages`                 | Lịch sử                      |
+| `currentUser`, `token`     | `POST /auth/login`, `POST /auth/register` | PhiÃªn Ä‘Äƒng nháº­p              |
+| `users[]`                  | `GET /users`                              | Hai modal chá»n ngÆ°á»i         |
+| `rooms[]`                  | `GET /rooms`                              | Sidebar (má»i room cÃ¹ng loáº¡i) |
+| `newRoom`                  | `POST /rooms`                             | Táº¡o room (2 ngÆ°á»i hoáº·c nhÃ³m) |
+| `messages[]`, `nextCursor` | `GET /rooms/:id/messages`                 | Lá»‹ch sá»­                      |
 
 
 
@@ -150,9 +150,9 @@
 
 | Event                              | UI             |
 | ---------------------------------- | -------------- |
-| `join_room` / `leave_room`         | Đổi phòng      |
-| `send_message` / `receive_message` | Gửi / nhận tin |
-| `typing`                           | Đang soạn      |
+| `join_room` / `leave_room`         | Äá»•i phÃ²ng      |
+| `send_message` / `receive_message` | Gá»­i / nháº­n tin |
+| `typing`                           | Äang soáº¡n      |
 | `presence`                         | Online/offline |
 
 
@@ -160,66 +160,66 @@
 
 
 
-## 5. Quyết định đã chốt (Sprint 1)
+## 5. Quyáº¿t Ä‘á»‹nh Ä‘Ã£ chá»‘t (Sprint 1)
 
-- [x] Một loại room — không DIRECT / GROUP
-- [x] 3 màn: Login, Register, Chat
-- [x] 2 modal: Chat mới (1 người) + Tạo nhóm (tên + nhiều người)
-- [x] Cùng `POST /rooms` — khác số `memberIds` / có `name` hay không
-- [x] Sidebar: 2 member → tên đối phương; hơn 2 → tên nhóm
-- [x] Gọi `GET /users` trong 2 modal
-- [x] BE chống trùng chat đôi → FE mở room trả về
-- [x] Typing + presence trên UI
-- [x] Không làm Join bằng link trong MVP
-- [x] Bám `docs/api-contract.md`
-- [x] Cập nhật Figma cho khớp 2 nút (Chat mới + Tạo nhóm)
+- [x] Má»™t loáº¡i room â€” khÃ´ng DIRECT / GROUP
+- [x] 3 mÃ n: Login, Register, Chat
+- [x] 2 modal: Chat má»›i (1 ngÆ°á»i) + Táº¡o nhÃ³m (tÃªn + nhiá»u ngÆ°á»i)
+- [x] CÃ¹ng `POST /rooms` â€” khÃ¡c sá»‘ `memberIds` / cÃ³ `name` hay khÃ´ng
+- [x] Sidebar: 2 member â†’ tÃªn Ä‘á»‘i phÆ°Æ¡ng; hÆ¡n 2 â†’ tÃªn nhÃ³m
+- [x] Gá»i `GET /users` trong 2 modal
+- [x] BE chá»‘ng trÃ¹ng chat Ä‘Ã´i â†’ FE má»Ÿ room tráº£ vá»
+- [x] Typing + presence trÃªn UI
+- [x] KhÃ´ng lÃ m Join báº±ng link trong MVP
+- [x] BÃ¡m `docs/api-contract.md`
+- [x] Cáº­p nháº­t Figma cho khá»›p 2 nÃºt (Chat má»›i + Táº¡o nhÃ³m)
 
 ---
 
 
 
-## 6. Frontend — Sprint 2 đến 8 (deadline nộp đủ **05/11/2026**)
+## 6. Frontend â€” Sprint 2 Ä‘áº¿n 8 (deadline ná»™p Ä‘á»§ **05/11/2026**)
 
 
 
-### Sprint 2 — Skeleton UI + auth + socket · **deadline 25/10/2026**
+### Sprint 2 â€” Skeleton UI + auth + socket Â· **deadline 25/10/2026**
 
 - [x] Init Vite React JS + Tailwind trong `client/`
-- [x] Màn Login / Register (gọi API hoặc mock tạm)
+- [x] MÃ n Login / Register (gá»i API hoáº·c mock táº¡m)
 - [x] Layout Chat (sidebar + khung tin)
-- [x] `useSocket`: connect JWT, `join_room`, gửi/nhận tin
-- [x] Figma khớp 2 nút (đã chốt Sprint 1)
+- [x] `useSocket`: connect JWT, `join_room`, gá»­i/nháº­n tin
+- [x] Figma khá»›p 2 nÃºt (Ä‘Ã£ chá»‘t Sprint 1)
 
 
 
-### Sprint 3–4 — Đủ MVP UI · **deadline 28/10/2026**
+### Sprint 3â€“4 â€” Äá»§ MVP UI Â· **deadline 28/10/2026**
 
-- [x] Modal Chat mới + Tạo nhóm (`GET /users`, `POST /rooms`)
-- [x] Sidebar: tên đối phương / tên nhóm; preview tin
+- [x] Modal Chat má»›i + Táº¡o nhÃ³m (`GET /users`, `POST /rooms`)
+- [x] Sidebar: tÃªn Ä‘á»‘i phÆ°Æ¡ng / tÃªn nhÃ³m; preview tin
 - [x] Typing indicator + online/offline
-- [x] Load lịch sử + cursor (cuộn lên)
-- [x] Đăng xuất (xóa token + disconnect)
-- [x] Nối BE thật, bỏ mock
+- [x] Load lá»‹ch sá»­ + cursor (cuá»™n lÃªn)
+- [x] ÄÄƒng xuáº¥t (xÃ³a token + disconnect)
+- [x] Ná»‘i BE tháº­t, bá» mock
 
 
 
-### Sprint 5–6 — Ổn định MVP · **deadline 31/10/2026**
+### Sprint 5â€“6 â€” á»”n Ä‘á»‹nh MVP Â· **deadline 31/10/2026**
 
-- [ ] Responsive cơ bản, UX lỗi (toast 401 → login) 
-- [ ] Test 2 tab: room đôi + room nhóm
-- [ ] Fix bug / polish (không ôm media/search)
-
-
-
-### Sprint 7 — Demo sẵn sàng · **deadline 02/11/2026**
-
-- [ ] Chạy theo README cùng Hiền/Vân
-- [ ] Chuẩn bị tài khoản demo trên UI
+- [ ] Responsive cÆ¡ báº£n, UX lá»—i (toast 401 â†’ login) 
+- [ ] Test 2 tab: room Ä‘Ã´i + room nhÃ³m
+- [ ] Fix bug / polish (khÃ´ng Ã´m media/search)
 
 
 
-### Sprint 8 — Report + video · **deadline 05/11/2026**
+### Sprint 7 â€” Demo sáºµn sÃ ng Â· **deadline 02/11/2026**
 
-- [ ] Viết report: so sánh WS vs SSE/Long Polling + Implementation Frontend → gửi **Hiền** trước **04/11**
-- [ ] Quay và dựng video tối đa 20 phút (chủ trì): có tiếng, đủ 3 thành viên — xong trước **05/11**
-- [ ] Demo UI trên video + ghép phần Vân/Hiền
+- [ ] Cháº¡y theo README cÃ¹ng Hiá»n/VÃ¢n
+- [ ] Chuáº©n bá»‹ tÃ i khoáº£n demo trÃªn UI
+
+
+
+### Sprint 8 â€” Report + video Â· **deadline 05/11/2026**
+
+- [ ] Viáº¿t report: so sÃ¡nh WS vs SSE/Long Polling + Implementation Frontend â†’ gá»­i **Hiá»n** trÆ°á»›c **04/11**
+- [ ] Quay vÃ  dá»±ng video tá»‘i Ä‘a 20 phÃºt (chá»§ trÃ¬): cÃ³ tiáº¿ng, Ä‘á»§ 3 thÃ nh viÃªn â€” xong trÆ°á»›c **05/11**
+- [ ] Demo UI trÃªn video + ghÃ©p pháº§n VÃ¢n/Hiá»n

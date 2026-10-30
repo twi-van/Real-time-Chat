@@ -12,7 +12,7 @@ export default function Login({ onLoginSuccess, onNavigateToRegister }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      setError('Vui lòng nhập đầy đủ email và mật khẩu');
+      setError('Vui lÃ²ng nháº­p Ä‘áº§y Ä‘á»§ email vÃ  máº­t kháº©u');
       return;
     }
 
@@ -24,10 +24,10 @@ export default function Login({ onLoginSuccess, onNavigateToRegister }) {
       if (res.success) {
         onLoginSuccess(res.data.user, res.data.token);
       } else {
-        setError(res.message || 'Đăng nhập không thành công');
+        setError(res.message || 'ÄÄƒng nháº­p khÃ´ng thÃ nh cÃ´ng');
       }
     } catch {
-      setError('Lỗi kết nối hệ thống');
+      setError('Lá»—i káº¿t ná»‘i há»‡ thá»‘ng');
     } finally {
       setLoading(false);
     }
@@ -40,7 +40,7 @@ export default function Login({ onLoginSuccess, onNavigateToRegister }) {
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-[#f8fafc] via-[#f1f5f9] to-[#ede9fe] p-4 sm:p-6 selection:bg-indigo-500 selection:text-white">
-      {/* Container Card khớp 100% Figma */}
+      {/* Container Card khá»›p 100% Figma */}
       <div className="w-full max-w-[440px] bg-white rounded-3xl shadow-[0_20px_50px_rgba(79,70,229,0.08)] border border-slate-100 p-8 sm:p-10 transition-all duration-300">
         
         {/* Logo & Icon */}
@@ -49,7 +49,7 @@ export default function Login({ onLoginSuccess, onNavigateToRegister }) {
             <MessageSquare className="w-7 h-7 stroke-[2.2]" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">Chat App</h1>
-          <p className="text-sm text-slate-500 mt-1 font-normal">Đăng nhập để tiếp tục trò chuyện</p>
+          <p className="text-sm text-slate-500 mt-1 font-normal">ÄÄƒng nháº­p Ä‘á»ƒ tiáº¿p tá»¥c trÃ² chuyá»‡n</p>
         </div>
 
         {error && (
@@ -80,7 +80,7 @@ export default function Login({ onLoginSuccess, onNavigateToRegister }) {
           {/* Password Field */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-2">
-              Mật khẩu
+              Máº­t kháº©u
             </label>
             <div className="relative flex items-center">
               <Lock className="absolute left-3.5 w-4 h-4 text-slate-400" />
@@ -88,7 +88,7 @@ export default function Login({ onLoginSuccess, onNavigateToRegister }) {
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••"
+                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢"
                 required
                 className="w-full pl-10 pr-10 py-3 bg-slate-50/70 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all duration-200 tracking-wider"
               />
@@ -108,7 +108,7 @@ export default function Login({ onLoginSuccess, onNavigateToRegister }) {
             className="cursor-pointer group flex items-center gap-2 p-3 bg-indigo-50/60 hover:bg-indigo-50 border border-indigo-100 rounded-xl text-xs text-indigo-700 font-medium transition-colors duration-150"
           >
             <div className="w-4 h-4 rounded-full border border-indigo-400 flex items-center justify-center text-[10px] font-bold">i</div>
-            <span>Tài khoản demo: <span className="font-semibold underline">a@a.com</span> | <span className="font-semibold">123456</span></span>
+            <span>TÃ i khoáº£n demo: <span className="font-semibold underline">a@a.com</span> | <span className="font-semibold">123456</span></span>
           </div>
 
           {/* Submit Button */}
@@ -117,26 +117,26 @@ export default function Login({ onLoginSuccess, onNavigateToRegister }) {
             disabled={loading}
             className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-[#4f46e5] hover:bg-[#4338ca] active:scale-[0.99] text-white font-medium text-sm rounded-xl shadow-lg shadow-indigo-600/20 transition-all duration-200 disabled:opacity-70 cursor-pointer"
           >
-            <span>{loading ? 'Đang xác thực...' : 'Đăng nhập'}</span>
+            <span>{loading ? 'Äang xÃ¡c thá»±c...' : 'ÄÄƒng nháº­p'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
 
         {/* Footer */}
         <div className="mt-8 text-center text-xs text-slate-500">
-          Chưa có tài khoản?{' '}
+          ChÆ°a cÃ³ tÃ i khoáº£n?{' '}
           <button
             onClick={onNavigateToRegister}
             className="font-semibold text-indigo-600 hover:text-indigo-700 hover:underline cursor-pointer"
           >
-            Đăng ký ngay
+            ÄÄƒng kÃ½ ngay
           </button>
         </div>
       </div>
 
       <div className="mt-6 flex items-center gap-2 text-xs text-slate-400">
         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-        <span>Hệ thống trò chuyện thời gian thực</span>
+        <span>Há»‡ thá»‘ng trÃ² chuyá»‡n thá»i gian thá»±c</span>
       </div>
     </div>
   );

@@ -6,12 +6,12 @@ const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:4000';
 
 function notifySocketError(code) {
   const messages = {
-    RATE_LIMITED: 'Bạn gửi quá nhanh. Vui lòng thử lại sau.',
-    FORBIDDEN: 'Bạn không có quyền gửi tin nhắn trong phòng này.',
-    VALIDATION_ERROR: 'Tin nhắn không hợp lệ. Vui lòng thử lại.',
+    RATE_LIMITED: 'Báº¡n gá»­i quÃ¡ nhanh. Vui lÃ²ng thá»­ láº¡i sau.',
+    FORBIDDEN: 'Báº¡n khÃ´ng cÃ³ quyá»n gá»­i tin nháº¯n trong phÃ²ng nÃ y.',
+    VALIDATION_ERROR: 'Tin nháº¯n khÃ´ng há»£p lá»‡. Vui lÃ²ng thá»­ láº¡i.',
   };
   window.dispatchEvent(new CustomEvent('chat:error', {
-    detail: { message: messages[code] || 'Không gửi được tin nhắn. Vui lòng thử lại.' },
+    detail: { message: messages[code] || 'KhÃ´ng gá»­i Ä‘Æ°á»£c tin nháº¯n. Vui lÃ²ng thá»­ láº¡i.' },
   }));
 }
 
@@ -38,7 +38,7 @@ export function useSocket(token, activeRoomId, onMessageReceived, onPresenceUpda
       return;
     }
 
-    // Kết nối socket với JWT auth token theo đúng api-contract.md mục 3
+    // Káº¿t ná»‘i socket vá»›i JWT auth token theo Ä‘Ãºng api-contract.md má»¥c 3
     const socket = io(SOCKET_URL, {
       auth: { token },
       transports: ['websocket', 'polling'],
@@ -50,7 +50,7 @@ export function useSocket(token, activeRoomId, onMessageReceived, onPresenceUpda
     socketRef.current = socket;
 
     socket.on('connect', () => {
-      console.log('⚡ Socket connected:', socket.id);
+      console.log('âš¡ Socket connected:', socket.id);
       setIsConnected(true);
       if (activeRoomId) {
         socket.emit('join_room', { roomId: activeRoomId });
@@ -58,14 +58,14 @@ export function useSocket(token, activeRoomId, onMessageReceived, onPresenceUpda
     });
 
     socket.on('disconnect', (reason) => {
-      console.log('🔌 Socket disconnected:', reason);
+      console.log('ðŸ”Œ Socket disconnected:', reason);
       setIsConnected(false);
     });
 
     socket.on('connect_error', (err) => {
       console.warn('Socket connect error:', err.message);
       setIsConnected(false);
-      // Nếu server socket từ chối vì lý do xác thực UNAUTHORIZED (api-contract mục 4)
+      // Náº¿u server socket tá»« chá»‘i vÃ¬ lÃ½ do xÃ¡c thá»±c UNAUTHORIZED (api-contract má»¥c 4)
       if (err.message?.includes('UNAUTHORIZED') || err.data?.message?.includes('UNAUTHORIZED')) {
         api.handleUnauthorized();
       }
@@ -100,7 +100,7 @@ export function useSocket(token, activeRoomId, onMessageReceived, onPresenceUpda
     };
   }, [token]);
 
-  // Quản lý join_room / leave_room khi activeRoomId thay đổi
+  // Quáº£n lÃ½ join_room / leave_room khi activeRoomId thay Ä‘á»•i
   useEffect(() => {
     const socket = socketRef.current;
     if (!socket || !isConnected || !activeRoomId) return;
@@ -112,7 +112,7 @@ export function useSocket(token, activeRoomId, onMessageReceived, onPresenceUpda
     };
   }, [activeRoomId, isConnected]);
 
-  // Gửi tin nhắn
+  // Gá»­i tin nháº¯n
   const sendMessage = useCallback((content) => {
     if (!activeRoomId || !content.trim()) return false;
 
@@ -125,21 +125,21 @@ export function useSocket(token, activeRoomId, onMessageReceived, onPresenceUpda
     }
 
     if (token?.startsWith('mock-jwt-token-')) {
-      // Khi BE chưa chạy socket, mô phỏng lưu mock tin nhắn ngay lập tức
+      // Khi BE chÆ°a cháº¡y socket, mÃ´ phá»ng lÆ°u mock tin nháº¯n ngay láº­p tá»©c
       const mockMsg = api.sendMockMessage(activeRoomId, content);
       if (onMessageRef.current) {
         onMessageRef.current(mockMsg);
       }
 
-      // Giả lập bot/thành viên khác phản hồi nhẹ sau 1.5s để demo sống động
+      // Giáº£ láº­p bot/thÃ nh viÃªn khÃ¡c pháº£n há»“i nháº¹ sau 1.5s Ä‘á»ƒ demo sá»‘ng Ä‘á»™ng
       if (window._demoAutoReplyEnabled !== false) {
         setTimeout(() => {
           const autoReply = {
             id: 'auto-' + Date.now(),
             roomId: activeRoomId,
-            content: 'Nhận được rồi nhé! Hệ thống realtime chat đang chạy mượt mà ✨',
+            content: 'Nháº­n Ä‘Æ°á»£c rá»“i nhÃ©! Há»‡ thá»‘ng realtime chat Ä‘ang cháº¡y mÆ°á»£t mÃ  âœ¨',
             senderId: 'u2',
-            sender: { id: 'u2', displayName: 'Thùy Vân' },
+            sender: { id: 'u2', displayName: 'ThÃ¹y VÃ¢n' },
             createdAt: new Date().toISOString()
           };
           api.mockMessages[activeRoomId]?.push(autoReply);
@@ -154,12 +154,12 @@ export function useSocket(token, activeRoomId, onMessageReceived, onPresenceUpda
     }
 
     window.dispatchEvent(new CustomEvent('chat:error', {
-      detail: { message: 'Mất kết nối máy chủ. Tin nhắn chưa được gửi.' },
+      detail: { message: 'Máº¥t káº¿t ná»‘i mÃ¡y chá»§. Tin nháº¯n chÆ°a Ä‘Æ°á»£c gá»­i.' },
     }));
     return false;
   }, [activeRoomId, isConnected, token]);
 
-  // Gửi event typing
+  // Gá»­i event typing
   const sendTyping = useCallback((isTyping) => {
     const socket = socketRef.current;
     if (socket && isConnected && activeRoomId) {
