@@ -296,7 +296,7 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
             </div>
             <div>
               <h2 className="text-xs font-bold text-slate-900 leading-tight">
-                {currentUser?.displayName || 'Kim Lợi'}
+                {currentUser?.displayName || 'An'}
               </h2>
               <p className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>

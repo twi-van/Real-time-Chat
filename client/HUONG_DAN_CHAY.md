@@ -45,15 +45,9 @@ Mở trình duyệt tại: **http://localhost:5173**
 
 ---
 
-## Chạy độc lập khi BE chưa online
+## Lưu ý
 
-FE tự động **fallback sang mock data** khi backend chưa chạy:
-
-- Đăng nhập bất kỳ email (ưu tiên `a@a.com`)
-- Xem đầy đủ giao diện: sidebar rooms, tin nhắn, typing, modal tạo phòng
-- Gửi tin → mock tự tạo phản hồi sau 1.5 giây (chế độ demo)
-
-> ⚠️ Khi BE online, **tự động dùng BE thật** — không cần thay đổi gì.
+App **chỉ dùng Backend + Socket thật** (không còn mock). Cần chạy Docker Postgres + `server` (`npm run dev`) trước khi mở FE.
 
 ---
 

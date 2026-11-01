@@ -75,8 +75,7 @@ client/
 │   │   └── CreateGroupModal.jsx # Modal tạo nhóm
 │   ├── hooks/
 │   │   └── useSocket.js       # Hook quản lý Socket.io
-│   ├── api.js                 # Service gọi REST API + mock fallback
-│   ├── mockData.js            # Dữ liệu mock khi BE offline
+│   ├── api.js                 # Service gọi REST API (Backend)
 │   └── App.jsx                # Root component + router auth
 ├── .env.example
 └── package.json
@@ -86,7 +85,7 @@ client/
 
 ## Tính năng đã hoàn thành
 
-- [x] Login / Register (gọi API + mock fallback)
+- [x] Login / Register (gọi API Backend)
 - [x] Chat theo room realtime (Socket.io)
 - [x] Tạo chat mới (2 người) — chống trùng room đôi
 - [x] Tạo nhóm (≥ 3 người, có tên)

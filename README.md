@@ -26,6 +26,7 @@
 8. [Tài khoản demo](#8-tài-khoản-demo)
 9. [Kiểm thử nghiệm thu](#9-kiểm-thử-nghiệm-thu)
 10. [Dừng và reset dữ liệu](#10-dừng-và-reset-dữ-liệu)
+11. [File SQL (nộp source)](#11-file-sql-nộp-source)
 
 ---
 
@@ -89,11 +90,11 @@ Tách type `DIRECT`/`GROUP`, join bằng link/mã, reply, reaction, search, gử
 ## 3. Phân công
 
 
-| Thành viên | Vai trò           | Phạm vi chính                                       |
-| ---------- | ----------------- | --------------------------------------------------- |
-| Thùy Vân   | Backend           | REST API, Socket.io, JWT, rate limit (`server/src`) |
-| Kim Lợi    | Frontend          | React UI, gọi API / socket (`client/`)              |
-| Diệu Hiền  | Database & DevOps | Prisma schema / migrate / seed, Docker              |
+| Thành viên | Vai trò           | Phạm vi chính                                            |
+| ---------- | ----------------- | -------------------------------------------------------- |
+| Thùy Vân   | Backend           | REST API, Socket.io, JWT, rate limit (`server/src`)      |
+| Kim Lợi    | Frontend          | React UI, gọi API / socket (`client/`)                   |
+| Diệu Hiền  | Database & DevOps | Prisma schema / migrate / seed, Docker, `database/*.sql` |
 
 
 ---
@@ -113,6 +114,11 @@ wedgk/
 │   ├── prisma/             # Schema, migrate, seed (Diệu Hiền)
 │   ├── scripts/            # Smoke test Backend
 │   └── package.json
+├── database/               # File SQL nộp (Diệu Hiền) — xem §11
+│   ├── schema.sql          # DDL cấu trúc bảng
+│   ├── seed.sql            # DML data demo
+│   ├── init.sql            # Gộp schema + seed (file nộp chính)
+│   └── README.md
 ├── docs/                   # Đặc tả & contract kỹ thuật
 ├── docker-compose.yml      # PostgreSQL
 ├── .env.example            # Mẫu biến môi trường (gốc repo)
@@ -272,6 +278,8 @@ node scripts/smoke-sprint56.js
 
 ---
 
+
+
 ## 10. Dừng và reset dữ liệu
 
 
@@ -307,4 +315,22 @@ cd server
 npm run db:migrate
 npm run db:seed
 ```
+
+---
+
+
+
+## 11. File SQL (nộp source)
+
+Dùng CSDL -> **đính kèm file SQL** tạo cấu trúc và khởi tạo dữ liệu.
+
+
+| File                                           | Mục đích                               |
+| ---------------------------------------------- | -------------------------------------- |
+| `[database/schema.sql](./database/schema.sql)` | Cấu trúc bảng (DDL)                    |
+| `[database/seed.sql](./database/seed.sql)`     | Data demo (DML)                        |
+| `[database/init.sql](./database/init.sql)`     | **File nộp chính** — gộp schema + seed |
+
+
+**Cách chạy app (khuyến nghị):** vẫn theo **§7** — Docker + **Prisma** `db:migrate` / `db:seed` (không bắt buộc chạy `psql` với các file trên).
 
