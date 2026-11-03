@@ -286,7 +286,7 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
       }`}>
         
         {/* User Profile Header (Figma mockup góc trái trên) */}
-        <div className="h-18 px-5 flex items-center justify-between border-b border-slate-100/80 bg-white">
+        <div className="py-3 px-5 flex items-center justify-between border-b border-slate-100/80 bg-white">
           <div className="flex items-center gap-3">
             <div className="relative">
               <div className="w-10 h-10 rounded-full bg-[#4f46e5] text-white flex items-center justify-center font-bold text-xs tracking-wide shadow-md shadow-indigo-500/20">
@@ -402,7 +402,7 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
         {activeRoom ? (
           <div className="flex flex-col flex-1 min-h-0">
             {/* Header phòng chat (Figma mockup ảnh #3 & #4) */}
-            <header className="h-18 px-4 sm:px-6 bg-white border-b border-slate-100 flex items-center justify-between shadow-xs">
+            <header className="py-3 px-5 flex items-center justify-between border-b border-slate-100/80 bg-white">
               <div className="flex items-center gap-3">
                 {/* Nút quay lại trên mobile */}
                 <button
