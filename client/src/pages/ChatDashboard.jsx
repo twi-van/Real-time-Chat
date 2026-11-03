@@ -71,20 +71,28 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
       setTimeout(() => scrollToBottom('smooth'), 50);
     }
 
-    // Cập nhật preview tin mới nhất ở sidebar
-    setRooms(prev => prev.map(r => {
-      if (r.id === normalizedMessage.roomId) {
-        return {
-          ...r,
-          lastMessage: {
-            content: normalizedMessage.content,
-            createdAt: normalizedMessage.createdAt,
-            senderId: normalizedMessage.senderId
-          }
-        };
+    // Cập nhật preview tin mới nhất ở sidebar và kiểm tra nếu là phòng mới chưa có trong danh sách
+    setRooms(prev => {
+      const roomExists = prev.some(r => r.id === normalizedMessage.roomId);
+      if (!roomExists) {
+        // Tải lại danh sách phòng để cập nhật cuộc trò chuyện mới từ người lạ
+        loadRooms();
+        return prev;
       }
-      return r;
-    }));
+      return prev.map(r => {
+        if (r.id === normalizedMessage.roomId) {
+          return {
+            ...r,
+            lastMessage: {
+              content: normalizedMessage.content,
+              createdAt: normalizedMessage.createdAt,
+              senderId: normalizedMessage.senderId
+            }
+          };
+        }
+        return r;
+      });
+    });
   };
 
   // Callback trạng thái typing
@@ -135,7 +143,8 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
     activeRoomId, 
     handleMessageReceived, 
     handlePresenceUpdate, 
-    handleTypingUpdate
+    handleTypingUpdate,
+    rooms
   );
 
   // Load danh sách phòng
@@ -267,7 +276,7 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
         title: room.name || 'Nhóm trò chuyện',
         isGroup: true,
         isOnline: true,
-        subtitle: `${members.length} thành viên • ${members.filter(m => m.isOnline).length} trực tuyến`,
+        subtitle: `${members.length} thành viên • ${members.filter(m => m.id === currentUser?.id || (presenceByUser[m.id] ?? !!m.isOnline)).length} trực tuyến`,
         avatarText: '#'
       };
     }
