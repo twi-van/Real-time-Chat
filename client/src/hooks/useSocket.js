@@ -15,7 +15,7 @@ function notifySocketError(code) {
   }));
 }
 
-export function useSocket(token, activeRoomId, onMessageReceived, onPresenceUpdate, onTypingUpdate) {
+export function useSocket(token, activeRoomId, onMessageReceived, onPresenceUpdate, onTypingUpdate, rooms = []) {
   const socketRef = useRef(null);
   const [isConnected, setIsConnected] = useState(false);
   const onMessageRef = useRef(onMessageReceived);
@@ -100,17 +100,22 @@ export function useSocket(token, activeRoomId, onMessageReceived, onPresenceUpda
     };
   }, [token]);
 
-  // Quản lý join_room / leave_room khi activeRoomId thay đổi
+  // Tham gia phòng active và lắng nghe tin nhắn mọi phòng của người dùng
   useEffect(() => {
     const socket = socketRef.current;
-    if (!socket || !isConnected || !activeRoomId) return;
+    if (!socket || !isConnected) return;
 
-    socket.emit('join_room', { roomId: activeRoomId });
+    // Join tất cả các phòng người dùng tham gia để nhận tin nhắn realtime ngay lập tức
+    rooms.forEach((r) => {
+      if (r?.id) {
+        socket.emit('join_room', { roomId: r.id });
+      }
+    });
 
-    return () => {
-      socket.emit('leave_room', { roomId: activeRoomId });
-    };
-  }, [activeRoomId, isConnected]);
+    if (activeRoomId) {
+      socket.emit('join_room', { roomId: activeRoomId });
+    }
+  }, [rooms, activeRoomId, isConnected]);
 
   // Gửi tin nhắn
   const sendMessage = useCallback((content) => {

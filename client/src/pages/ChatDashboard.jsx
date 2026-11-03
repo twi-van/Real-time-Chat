@@ -88,25 +88,35 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
       setTimeout(() => scrollToBottom('smooth'), 50);
     }
 
-    // Cập nhật preview, trạng thái chưa đọc và thứ tự phòng theo tin nhắn mới nhất
-    setRooms(prev => sortRoomsByLatestActivity(prev.map(room => {
-      if (room.id !== normalizedMessage.roomId) return room;
+    // Cập nhật preview tin mới nhất ở sidebar và kiểm tra nếu là phòng mới chưa có trong danh sách
+    setRooms(prev => {
+      const roomExists = prev.some(r => r.id === normalizedMessage.roomId);
+      if (!roomExists) {
+        // Tải lại danh sách phòng để cập nhật cuộc trò chuyện mới từ người lạ
+        loadRooms();
+        return prev;
+      }
+      const updatedRooms = prev.map(room => {
+        if (room.id !== normalizedMessage.roomId) return room;
 
-      const isRoomOpen = room.id === activeRoomIdRef.current;
-      const isIncoming = normalizedMessage.senderId !== (currentUser?.id || 'u1');
-      return {
-        ...room,
-        lastMessage: {
-          content: normalizedMessage.content,
-          createdAt: normalizedMessage.createdAt,
-          senderId: normalizedMessage.senderId
-        },
-        hasUnread: isRoomOpen ? false : isIncoming ? true : room.hasUnread
-      };
-    })));
+        const isRoomOpen = room.id === activeRoomIdRef.current;
+        const isIncoming = normalizedMessage.senderId !== (currentUser?.id || 'u1');
+
+        return {
+          ...room,
+          lastMessage: {
+            content: normalizedMessage.content,
+            createdAt: normalizedMessage.createdAt,
+            senderId: normalizedMessage.senderId
+          },
+          hasUnread: isRoomOpen ? false : isIncoming ? true : room.hasUnread
+        };
+      });
+      return sortRoomsByLatestActivity(updatedRooms);
+    });
   };
 
-  // Callback trạng thái typing
+    // Callback trạng thái typing
   const handleTypingUpdate = ({ roomId, userId, isTyping }) => {
     if (userId === currentUser?.id) return;
     const existingTimer = remoteTypingTimersRef.current[roomId];
@@ -154,7 +164,8 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
     activeRoomId, 
     handleMessageReceived, 
     handlePresenceUpdate, 
-    handleTypingUpdate
+    handleTypingUpdate,
+    rooms
   );
 
   // Load danh sách phòng
@@ -294,7 +305,7 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
         title: room.name || 'Nhóm trò chuyện',
         isGroup: true,
         isOnline: true,
-        subtitle: `${members.length} thành viên • ${members.filter(m => m.isOnline).length} trực tuyến`,
+        subtitle: `${members.length} thành viên • ${members.filter(m => m.id === currentUser?.id || (presenceByUser[m.id] ?? !!m.isOnline)).length} trực tuyến`,
         avatarText: '#'
       };
     }
