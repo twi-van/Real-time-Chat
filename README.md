@@ -22,11 +22,11 @@
 4. [Cấu trúc thư mục](#4-cấu-trúc-thư-mục)
 5. [Yêu cầu môi trường](#5-yêu-cầu-môi-trường)
 6. [Cổng dịch vụ](#6-cổng-dịch-vụ)
-7. [Hướng dẫn cài đặt và chạy](#7-hướng-dẫn-cài-đặt-và-chạy)
+7. [Setup & Run — Cài đặt và chạy](#7-setup--run--cài-đặt-và-chạy)
 8. [Tài khoản demo](#8-tài-khoản-demo)
 9. [Kiểm thử nghiệm thu](#9-kiểm-thử-nghiệm-thu)
 10. [Dừng và reset dữ liệu](#10-dừng-và-reset-dữ-liệu)
-11. [File SQL (nộp source)](#11-file-sql-nộp-source)
+11. [File SQL (cấu trúc + dữ liệu)](#11-file-sql-cấu-trúc--dữ-liệu)
 
 ---
 
@@ -90,11 +90,11 @@ Tách type `DIRECT`/`GROUP`, join bằng link/mã, reply, reaction, search, gử
 ## 3. Phân công
 
 
-| Thành viên | Vai trò           | Phạm vi chính                                            |
-| ---------- | ----------------- | -------------------------------------------------------- |
-| Thùy Vân   | Backend           | REST API, Socket.io, JWT, rate limit (`server/src`)      |
-| Kim Lợi    | Frontend          | React UI, gọi API / socket (`client/`)                   |
-| Diệu Hiền  | Database & DevOps | Prisma schema / migrate / seed, Docker, `database/*.sql` |
+| Thành viên | Vai trò           | Phạm vi chính                                               |
+| ---------- | ----------------- | ----------------------------------------------------------- |
+| Thùy Vân   | Backend           | REST API, Socket.io, JWT, rate limit (`server/src`)         |
+| Kim Lợi    | Frontend          | React UI, gọi API / socket (`client/`)                      |
+| Diệu Hiền  | Database & DevOps | Prisma schema / migrate / seed, Docker, `database/init.sql` |
 
 
 ---
@@ -105,24 +105,23 @@ Tách type `DIRECT`/`GROUP`, join bằng link/mã, reply, reaction, search, gử
 
 ```text
 wedgk/
-├── client/                 # Frontend (Kim Lợi)
+├── client/                 # Frontend 
 │   ├── src/
 │   ├── .env.example
 │   └── package.json
-├── server/                 # Backend (Thùy Vân)
+├── server/                 # Backend 
 │   ├── src/                # Express + Socket.io
-│   ├── prisma/             # Schema, migrate, seed (Diệu Hiền)
+│   ├── prisma/             # Schema, migrate, seed 
 │   ├── scripts/            # Smoke test Backend
 │   └── package.json
-├── database/               # File SQL nộp (Diệu Hiền) — xem §11
-│   ├── schema.sql          # DDL cấu trúc bảng
-│   ├── seed.sql            # DML data demo
-│   ├── init.sql            # Gộp schema + seed (file nộp chính)
+├── database/               # File SQL nộp  — xem §11
+│   ├── init.sql            # DDL + seed demo (file nộp chính)
 │   └── README.md
-├── docs/                   # Đặc tả & contract kỹ thuật
+├── docs/
+│   └── report.docx         # Báo cáo giữa kỳ
 ├── docker-compose.yml      # PostgreSQL
 ├── .env.example            # Mẫu biến môi trường (gốc repo)
-└── README.md               # File này
+└── README.md               # File này (Setup & Run)
 ```
 
 ---
@@ -164,9 +163,9 @@ Các cổng mặc định được cấu hình trong `.env.example`, `client/.en
 
 
 
-## 7. Hướng dẫn cài đặt và chạy
+## 7. Setup & Run — Cài đặt và chạy
 
-Thực hiện lần lượt các bước dưới đây từ thư mục gốc của dự án:
+Thực hiện lần lượt các bước dưới đây từ thư mục gốc của dự án (**Setup & Run**):
 
 ### Bước 1: Thiết lập biến môi trường (`.env`)
 
@@ -288,10 +287,16 @@ node scripts/smoke-sprint56.js
 
 1. **Dừng Frontend & Backend:** Nhấn tổ hợp phím `Ctrl + C` tại mỗi cửa sổ terminal đang chạy `npm run dev`.
 2. **Dừng container PostgreSQL (giữ nguyên dữ liệu DB):**
-  ```bash
-   docker compose stop
-  ```
-   Hoặc tắt và gỡ container (vẫn giữ volume `pgdata`):
+
+```bash
+docker compose stop
+```
+
+1. **Tắt và gỡ container (vẫn giữ volume** `pgdata`**):**
+
+```bash
+docker compose down
+```
 
 
 
@@ -320,17 +325,22 @@ npm run db:seed
 
 
 
-## 11. File SQL (nộp source)
+## 11. File SQL (cấu trúc + dữ liệu)
 
-Dùng CSDL -> **đính kèm file SQL** tạo cấu trúc và khởi tạo dữ liệu.
+Dự án dùng PostgreSQL → đính kèm file SQL **tạo cấu trúc** và **khởi tạo dữ liệu**:
 
+| File | Mục đích |
+| ---- | -------- |
+| [`database/init.sql`](./database/init.sql) | DDL (bảng, index, FK) + DML seed 3 user demo (`a@a.com` / `b@b.com` / `c@c.com`) |
 
-| File                                           | Mục đích                               |
-| ---------------------------------------------- | -------------------------------------- |
-| `[database/schema.sql](./database/schema.sql)` | Cấu trúc bảng (DDL)                    |
-| `[database/seed.sql](./database/seed.sql)`     | Data demo (DML)                        |
-| `[database/init.sql](./database/init.sql)`     | **File nộp chính** — gộp schema + seed |
+**Cách chạy app (khuyến nghị):** theo **§7 Setup & Run** — Docker + Prisma `db:migrate` / `db:seed`.  
+File `init.sql` để nộp / tham chiếu theo yêu cầu môn; không bắt buộc `psql -f database/init.sql` khi chạy demo.
 
+---
 
-**Cách chạy app (khuyến nghị):** vẫn theo **§7** — Docker + **Prisma** `db:migrate` / `db:seed` (không bắt buộc chạy `psql` với các file trên).
+## Checklist nộp source (theo đề)
+
+- [x] Loại bỏ thư mục không cần thiết (`node_modules`, `target`, `vendor`, …) — đã `.gitignore`, không track trong Git
+- [x] Có `README.md` hướng dẫn **Setup & Run** (mục 7)
+- [x] Có file SQL tạo cấu trúc + khởi tạo dữ liệu: `database/init.sql`
 
