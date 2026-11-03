@@ -33,10 +33,17 @@ export default function Login({ onLoginSuccess, onNavigateToRegister }) {
     }
   };
 
-  const fillDemo = () => {
-    setEmail('a@a.com');
+  const fillDemo = (demoEmail) => {
+    setEmail(demoEmail);
     setPassword('123456');
+    setError('');
   };
+
+  const DEMO_ACCOUNTS = [
+    { email: 'a@a.com', name: 'An' },
+    { email: 'b@b.com', name: 'Bình' },
+    { email: 'c@c.com', name: 'Chi' },
+  ];
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-[#f8fafc] via-[#f1f5f9] to-[#ede9fe] p-4 sm:p-6 selection:bg-indigo-500 selection:text-white">
@@ -102,13 +109,25 @@ export default function Login({ onLoginSuccess, onNavigateToRegister }) {
             </div>
           </div>
 
-          {/* Demo account hint box */}
-          <div 
-            onClick={fillDemo}
-            className="cursor-pointer group flex items-center gap-2 p-3 bg-indigo-50/60 hover:bg-indigo-50 border border-indigo-100 rounded-xl text-xs text-indigo-700 font-medium transition-colors duration-150"
-          >
-            <div className="w-4 h-4 rounded-full border border-indigo-400 flex items-center justify-center text-[10px] font-bold">i</div>
-            <span>Tài khoản demo: <span className="font-semibold underline">a@a.com</span> | <span className="font-semibold">123456</span></span>
+          {/* Demo accounts — click để điền form */}
+          <div className="p-3 bg-indigo-50/60 border border-indigo-100 rounded-xl text-xs text-indigo-700 space-y-2">
+            <div className="flex items-center gap-2 font-medium">
+              <div className="w-4 h-4 rounded-full border border-indigo-400 flex items-center justify-center text-[10px] font-bold">i</div>
+              <span>Tài khoản demo (mật khẩu chung: <span className="font-semibold">123456</span>)</span>
+            </div>
+            <div className="flex flex-wrap gap-2 pl-6">
+              {DEMO_ACCOUNTS.map((acc) => (
+                <button
+                  key={acc.email}
+                  type="button"
+                  onClick={() => fillDemo(acc.email)}
+                  className="px-2.5 py-1 rounded-lg bg-white border border-indigo-200 hover:border-indigo-400 hover:bg-indigo-50 font-semibold text-indigo-700 transition-colors cursor-pointer"
+                  title={`Điền ${acc.email}`}
+                >
+                  {acc.name} · {acc.email}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Submit Button */}

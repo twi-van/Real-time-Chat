@@ -26,6 +26,7 @@
 8. [Tài khoản demo](#8-tài-khoản-demo)
 9. [Kiểm thử nghiệm thu](#9-kiểm-thử-nghiệm-thu)
 10. [Dừng và reset dữ liệu](#10-dừng-và-reset-dữ-liệu)
+11. [File SQL (nộp source)](#11-file-sql-nộp-source)
 
 ---
 
@@ -89,11 +90,11 @@ Tách type `DIRECT`/`GROUP`, join bằng link/mã, reply, reaction, search, gử
 ## 3. Phân công
 
 
-| Thành viên | Vai trò           | Phạm vi chính                                       |
-| ---------- | ----------------- | --------------------------------------------------- |
-| Thùy Vân   | Backend           | REST API, Socket.io, JWT, rate limit (`server/src`) |
-| Kim Lợi    | Frontend          | React UI, gọi API / socket (`client/`)              |
-| Diệu Hiền  | Database & DevOps | Prisma schema / migrate / seed, Docker              |
+| Thành viên | Vai trò           | Phạm vi chính                                            |
+| ---------- | ----------------- | -------------------------------------------------------- |
+| Thùy Vân   | Backend           | REST API, Socket.io, JWT, rate limit (`server/src`)      |
+| Kim Lợi    | Frontend          | React UI, gọi API / socket (`client/`)                   |
+| Diệu Hiền  | Database & DevOps | Prisma schema / migrate / seed, Docker, `database/*.sql` |
 
 
 ---
@@ -113,6 +114,11 @@ wedgk/
 │   ├── prisma/             # Schema, migrate, seed (Diệu Hiền)
 │   ├── scripts/            # Smoke test Backend
 │   └── package.json
+├── database/               # File SQL nộp (Diệu Hiền) — xem §11
+│   ├── schema.sql          # DDL cấu trúc bảng
+│   ├── seed.sql            # DML data demo
+│   ├── init.sql            # Gộp schema + seed (file nộp chính)
+│   └── README.md
 ├── docs/                   # Đặc tả & contract kỹ thuật
 ├── docker-compose.yml      # PostgreSQL
 ├── .env.example            # Mẫu biến môi trường (gốc repo)
@@ -127,12 +133,14 @@ wedgk/
 
 Để cài đặt và chạy dự án trên máy local, cần chuẩn bị các phần mềm sau:
 
-| Phần mềm               | Phiên bản yêu cầu | Lệnh kiểm tra phiên bản                      |
-| ---------------------- | ----------------- | -------------------------------------------- |
-| **Node.js**            | `>= 20.x`         | `node -v`                                    |
-| **npm**                | `>= 10.x`         | `npm -v`                                     |
-| **Docker & Compose**   | Docker Desktop    | `docker -v` và `docker compose version`      |
-| **Git**                | Bất kỳ            | `git --version`                              |
+
+| Phần mềm             | Phiên bản yêu cầu | Lệnh kiểm tra phiên bản                 |
+| -------------------- | ----------------- | --------------------------------------- |
+| **Node.js**          | `>= 20.x`         | `node -v`                               |
+| **npm**              | `>= 10.x`         | `npm -v`                                |
+| **Docker & Compose** | Docker Desktop    | `docker -v` và `docker compose version` |
+| **Git**              | Bất kỳ            | `git --version`                         |
+
 
 > **Lưu ý:** Đảm bảo Docker Desktop đang chạy trước khi khởi tạo cơ sở dữ liệu PostgreSQL, và các cổng `5173` (Frontend), `4000` (Backend), `5439` (PostgreSQL) không bị chiếm dụng bởi ứng dụng khác.
 
@@ -144,11 +152,13 @@ wedgk/
 
 Các cổng mặc định được cấu hình trong `.env.example`, `client/.env.example` và `docker-compose.yml`:
 
-| Dịch vụ                       | Cổng (Host) | Cổng (Container) | Địa chỉ / Kết nối mặc định                                          |
-| ----------------------------- | ----------- | ---------------- | ------------------------------------------------------------------- |
-| **Frontend (React + Vite)**   | `5173`      | —                | `http://localhost:5173`                                             |
-| **Backend (Express + WS)**    | `4000`      | —                | `http://localhost:4000` (REST API & Socket.io)                      |
-| **Database (PostgreSQL 16)**  | `5439`      | `5432`           | `postgresql://postgres:postgres@localhost:5439/wedgk_chat?schema=public` |
+
+| Dịch vụ                      | Cổng (Host) | Cổng (Container) | Địa chỉ / Kết nối mặc định                                               |
+| ---------------------------- | ----------- | ---------------- | ------------------------------------------------------------------------ |
+| **Frontend (React + Vite)**  | `5173`      | —                | `http://localhost:5173`                                                  |
+| **Backend (Express + WS)**   | `4000`      | —                | `http://localhost:4000` (REST API & Socket.io)                           |
+| **Database (PostgreSQL 16)** | `5439`      | `5432`           | `postgresql://postgres:postgres@localhost:5439/wedgk_chat?schema=public` |
+
 
 ---
 
@@ -163,6 +173,7 @@ Thực hiện lần lượt các bước dưới đây từ thư mục gốc c�
 Copy các file mẫu `.env.example` thành `.env` ở thư mục gốc, thư mục `server` (cho Prisma CLI) và thư mục `client`:
 
 **Trên Windows (PowerShell):**
+
 ```powershell
 Copy-Item .env.example .env
 Copy-Item .env.example server/.env
@@ -170,13 +181,14 @@ Copy-Item client/.env.example client/.env
 ```
 
 **Trên macOS / Linux (Bash):**
+
 ```bash
 cp .env.example .env
 cp .env.example server/.env
 cp client/.env.example client/.env
 ```
 
-*(Các giá trị mặc định trong `.env.example` đã khớp sẵn với cấu hình Docker Compose ở cổng `5439` và Backend ở cổng `4000`).*
+*(Các giá trị mặc định trong* `.env.example` *đã khớp sẵn với cấu hình Docker Compose ở cổng* `5439` *và Backend ở cổng* `4000`*).*
 
 ### Bước 2: Khởi động PostgreSQL bằng Docker Compose
 
@@ -185,9 +197,12 @@ docker compose up -d
 ```
 
 Kiểm tra container `db` đã chạy (`Up`):
+
 ```bash
 docker compose ps
 ```
+
+
 
 ### Bước 3: Cài đặt thư viện, chạy Migration và Seed dữ liệu (Backend)
 
@@ -197,6 +212,8 @@ npm install
 npm run db:migrate
 npm run db:seed
 ```
+
+
 
 ### Bước 4: Chạy Backend Server
 
@@ -220,7 +237,6 @@ npm run dev
 
 Truy cập ứng dụng trên trình duyệt tại địa chỉ: `http://localhost:5173`
 
-
 ---
 
 
@@ -229,11 +245,13 @@ Truy cập ứng dụng trên trình duyệt tại địa chỉ: `http://localho
 
 Sau khi chạy lệnh `npm run db:seed` (từ file `server/prisma/seed.js`), hệ thống khởi tạo sẵn **3 tài khoản demo** (chưa tạo sẵn room hay tin nhắn để tiện kiểm thử từ đầu):
 
-| STT | Tên hiển thị (`displayName`) | Email       | Mật khẩu |
-| --- | ---------------------------- | ----------- | -------- |
-| 1   | **An**                       | `a@a.com`   | `123456` |
-| 2   | **Bình**                     | `b@b.com`   | `123456` |
-| 3   | **Chi**                      | `c@c.com`   | `123456` |
+
+| STT | Tên hiển thị (`displayName`) | Email     | Mật khẩu |
+| --- | ---------------------------- | --------- | -------- |
+| 1   | **An**                       | `a@a.com` | `123456` |
+| 2   | **Bình**                     | `b@b.com` | `123456` |
+| 3   | **Chi**                      | `c@c.com` | `123456` |
+
 
 ---
 
@@ -264,28 +282,32 @@ node scripts/smoke-sprint56.js
 
 ## 10. Dừng và reset dữ liệu
 
+
+
 ### Dừng các dịch vụ đang chạy
 
 1. **Dừng Frontend & Backend:** Nhấn tổ hợp phím `Ctrl + C` tại mỗi cửa sổ terminal đang chạy `npm run dev`.
 2. **Dừng container PostgreSQL (giữ nguyên dữ liệu DB):**
-   ```bash
+  ```bash
    docker compose stop
-   ```
+  ```
    Hoặc tắt và gỡ container (vẫn giữ volume `pgdata`):
-   ```bash
-   docker compose down
-   ```
+
+
 
 ### Reset toàn bộ dữ liệu Database và Seed lại từ đầu
 
 **Cách 1: Reset bằng Prisma (khi Docker PostgreSQL đang chạy)**
+
 ```bash
 cd server
 npx prisma migrate reset --force
 ```
-*(Lệnh này sẽ tự động xóa sạch dữ liệu, áp dụng lại toàn bộ migrations và tự chạy lại `prisma/seed.js`).*
 
-**Cách 2: Xóa hẳn Docker Volume (`pgdata`) và khởi tạo lại**
+*(Lệnh này sẽ tự động xóa sạch dữ liệu, áp dụng lại toàn bộ migrations và tự chạy lại* `prisma/seed.js`*).*
+
+**Cách 2: Xóa hẳn Docker Volume (**`pgdata`**) và khởi tạo lại**
+
 ```bash
 docker compose down -v
 docker compose up -d
@@ -293,4 +315,22 @@ cd server
 npm run db:migrate
 npm run db:seed
 ```
+
+---
+
+
+
+## 11. File SQL (nộp source)
+
+Dùng CSDL -> **đính kèm file SQL** tạo cấu trúc và khởi tạo dữ liệu.
+
+
+| File                                           | Mục đích                               |
+| ---------------------------------------------- | -------------------------------------- |
+| `[database/schema.sql](./database/schema.sql)` | Cấu trúc bảng (DDL)                    |
+| `[database/seed.sql](./database/seed.sql)`     | Data demo (DML)                        |
+| `[database/init.sql](./database/init.sql)`     | **File nộp chính** — gộp schema + seed |
+
+
+**Cách chạy app (khuyến nghị):** vẫn theo **§7** — Docker + **Prisma** `db:migrate` / `db:seed` (không bắt buộc chạy `psql` với các file trên).
 

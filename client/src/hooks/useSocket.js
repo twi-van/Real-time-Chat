@@ -124,40 +124,11 @@ export function useSocket(token, activeRoomId, onMessageReceived, onPresenceUpda
       return true;
     }
 
-    if (token?.startsWith('mock-jwt-token-')) {
-      // Khi BE chưa chạy socket, mô phỏng lưu mock tin nhắn ngay lập tức
-      const mockMsg = api.sendMockMessage(activeRoomId, content);
-      if (onMessageRef.current) {
-        onMessageRef.current(mockMsg);
-      }
-
-      // Giả lập bot/thành viên khác phản hồi nhẹ sau 1.5s để demo sống động
-      if (window._demoAutoReplyEnabled !== false) {
-        setTimeout(() => {
-          const autoReply = {
-            id: 'auto-' + Date.now(),
-            roomId: activeRoomId,
-            content: 'Nhận được rồi nhé! Hệ thống realtime chat đang chạy mượt mà ✨',
-            senderId: 'u2',
-            sender: { id: 'u2', displayName: 'Thùy Vân' },
-            createdAt: new Date().toISOString()
-          };
-          api.mockMessages[activeRoomId]?.push(autoReply);
-          api.saveMock();
-          if (onMessageRef.current) {
-            onMessageRef.current(autoReply);
-          }
-        }, 1500);
-      }
-
-      return true;
-    }
-
     window.dispatchEvent(new CustomEvent('chat:error', {
       detail: { message: 'Mất kết nối máy chủ. Tin nhắn chưa được gửi.' },
     }));
     return false;
-  }, [activeRoomId, isConnected, token]);
+  }, [activeRoomId, isConnected]);
 
   // Gửi event typing
   const sendTyping = useCallback((isTyping) => {

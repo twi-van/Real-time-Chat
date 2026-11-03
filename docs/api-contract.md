@@ -181,8 +181,14 @@ FE nên: gặp `UNAUTHORIZED` → xóa token, về màn Login.
 
 ### Sprint 7 — Vận hành · **deadline 02/11/2026**
 
-- [ ] Hỗ trợ Hiền: env, port, CORS, proxy WS nếu cần  
-- [ ] Kiểm tra chạy theo README trên máy sạch
+- [x] Hỗ trợ Hiền: env, port, CORS, proxy WS nếu cần  
+  - Port BE `PORT=4000`; FE `5173`; Postgres host `5439` (khớp `.env.example` + README)  
+  - CORS REST + Socket.io: `CLIENT_ORIGIN` (mặc định `http://localhost:5173`)  
+  - FE gọi thẳng `VITE_API_URL` / `VITE_SOCKET_URL` → **4000** — **không** cần proxy Vite cho WS  
+  - `npm run db:migrate` = `prisma migrate deploy` (máy sạch); schema mới lúc dev: `db:migrate:dev`  
+- [x] Kiểm tra chạy theo README trên máy sạch  
+  - Flow: `.env` → `docker compose up -d` → `cd server` → `db:migrate` / `db:seed` → `npm run dev` → client `npm run dev`  
+  - `GET /health` → `{"ok":true}`; smoke: `node scripts/smoke-sprint56.js`  
 
 
 

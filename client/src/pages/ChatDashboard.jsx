@@ -290,13 +290,13 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
           <div className="flex items-center gap-3">
             <div className="relative">
               <div className="w-10 h-10 rounded-full bg-[#4f46e5] text-white flex items-center justify-center font-bold text-xs tracking-wide shadow-md shadow-indigo-500/20">
-                {currentUser?.displayName?.slice(0, 2).toUpperCase() || 'KL'}
+                {currentUser?.displayName?.slice(0, 2).toUpperCase() || 'An'}
               </div>
               <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></span>
             </div>
             <div>
               <h2 className="text-xs font-bold text-slate-900 leading-tight">
-                {currentUser?.displayName || 'Kim Lợi'}
+                {currentUser?.displayName || 'An'}
               </h2>
               <p className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>

@@ -205,16 +205,16 @@
 
 ### Sprint 5–6 — Ổn định MVP · **deadline 31/10/2026**
 
-- [ ] Responsive cơ bản, UX lỗi (toast 401 → login) 
-- [ ] Test 2 tab: room đôi + room nhóm
-- [ ] Fix bug / polish (không ôm media/search)
+- [x] Responsive cơ bản, UX lỗi (toast 401 → login) 
+- [x] Test 2 tab: room đôi + room nhóm
+- [x] Fix bug / polish (không ôm media/search)
 
 
 
 ### Sprint 7 — Demo sẵn sàng · **deadline 02/11/2026**
 
-- [ ] Chạy theo README cùng Hiền/Vân
-- [ ] Chuẩn bị tài khoản demo trên UI
+- [x] Chạy theo README cùng Hiền/Vân
+- [x] Chuẩn bị tài khoản demo trên UI
 
 
 

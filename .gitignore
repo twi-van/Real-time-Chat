@@ -12,3 +12,4 @@ coverage/
 *.tsbuildinfo
 client/dist/
 server/dist/
+docs/HUONG_DAN_VIDEO_DEMO.md

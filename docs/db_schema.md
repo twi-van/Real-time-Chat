@@ -16,7 +16,11 @@
 - **RoomMember** (`room_members`): bảng trung gian lưu thành viên của phòng, dùng khóa chính phức hợp `@@id([roomId, userId])`.
 - **Message** (`messages`): tin nhắn được gửi trong phòng.
 
+
+
 ### 1.1. Cột từng bảng (MVP)
+
+
 
 #### User (`@@map("users")`)
 
@@ -30,6 +34,8 @@
 | `createdAt`        | `created_at`    | DateTime | `@default(now())`            |
 
 
+
+
 #### Room (`@@map("rooms")`)
 
 
@@ -41,6 +47,8 @@
 | `createdAt`        | `created_at`    | DateTime | `@default(now())`                                                                                  |
 
 
+
+
 #### RoomMember (`@@map("room_members")`)
 
 
@@ -50,6 +58,8 @@
 | `userId`           | `user_id`       | UUID         | FK → `User.id` (`onDelete: Cascade`)                 |
 | `joinedAt`         | `joined_at`     | DateTime     | `@default(now())`                                    |
 | —                  | —               | Composite PK | `@@id([roomId, userId])` (kiêm Unique cặp room–user) |
+
+
 
 
 #### Message (`@@map("messages")`)
@@ -68,6 +78,8 @@
 
 ---
 
+
+
 ## 2. Quan hệ giữa các bảng & Chính sách xóa (`onDelete`)
 
 - **User–Room** (N-N): qua `RoomMember`; một user nhiều room; một room ≥ 2 thành viên.
@@ -80,7 +92,11 @@
 
 ---
 
+
+
 ## 3. Hướng migrate và seed
+
+
 
 ### 3.1. Migrate
 
@@ -93,6 +109,8 @@ Thứ tự bảng khởi tạo:
 3. `room_members` (PK `(room_id, user_id)`)
 4. `messages`
 5. Unique + Index (mục 4)
+
+
 
 ### 3.2. Seed tài khoản demo (local/test) — đơn giản
 
@@ -113,7 +131,11 @@ Cùng password: `123456`
 
 ---
 
+
+
 ## 4. Index, Phân trang lịch sử & Query gợi ý cho BE
+
+
 
 ### 4.1. Index
 
@@ -122,6 +144,8 @@ Cùng password: `123456`
 - `room_members(user_id)` — `@@index([userId])` (tối ưu query lấy danh sách room của user)
 - `messages(room_id, created_at DESC, id DESC)` — `@@index([roomId, createdAt(sort: Desc), id(sort: Desc)])` (tối ưu lịch sử + cursor)
 - `messages(created_at, id)` — `@@unique([createdAt, id])` (cho phép dùng cả Prisma native cursor `createdAt_id` hoặc `WHERE` keyset)
+
+
 
 ### 4.2. Cursor phân trang tin nhắn (chốt, khớp API)
 
@@ -151,6 +175,8 @@ Cùng password: `123456`
   });
   ```
 
+
+
 ### 4.3. Query danh sách Room kèm tin nhắn mới nhất cho Sidebar (`GET /rooms`)
 
 Để FE hiển thị được **tên phòng/đối phương, tin mới nhất và giờ** trên Sidebar mà không cần thêm cột dư thừa vào bảng `Room`, BE có thể query:
@@ -179,6 +205,8 @@ const rooms = await prisma.room.findMany({
 
 ---
 
+
+
 ## 5. Quyết định đã chốt
 
 - [x] DBMS: **PostgreSQL 16**  
@@ -196,7 +224,11 @@ Khớp `docs/api-contract.md` và `server/prisma/schema.prisma`.
 
 ---
 
+
+
 ## 6. Database & DevOps — Sprint 2 → 8 (deadline nộp đủ **05/11/2026**)
+
+
 
 ### Sprint 2 — DB chạy được · **deadline 25/10/2026**
 
@@ -205,6 +237,8 @@ Khớp `docs/api-contract.md` và `server/prisma/schema.prisma`.
 - [x] `docker compose` Postgres khớp `.env.example`  
 - [x] Báo Vân `DATABASE_URL` + cách chạy migrate
 
+
+
 ### Sprint 3–4 — Hỗ trợ ghép hệ thống · **deadline 28/10/2026**
 
 - [x] Sửa schema nếu BE/FE phát hiện thiếu field (MVP đủ; không thiếu cột)  
@@ -212,18 +246,24 @@ Khớp `docs/api-contract.md` và `server/prisma/schema.prisma`.
 - [x] Seed **chỉ 3 user** demo (`a@a.com` / `b@b.com` / `c@c.com`) — **không** seed room / tin mẫu (demo sạch, tạo room trên UI)  
 - [x] Hỗ trợ Vân debug query / migration. (Vân đã test)
 
+
+
 ### Sprint 5–6 — Ổn định · **deadline 31/10/2026**
 
-- [ ] Seed idempotent (upsert user theo email; chạy lại không lỗi)  
-- [ ] Hướng dẫn reset DB local trong README (§10)  
-- [ ] (Tuỳ chọn) chính sách xóa user/room nâng cao — chỉ nếu còn thời gian
+- [x] Seed idempotent (upsert user theo email; chạy lại không lỗi)  
+- [x] Hướng dẫn reset DB local trong README (§10)  
+- [x] (Tuỳ chọn) chính sách xóa user/room nâng cao — chỉ nếu còn thời gian
+
+
 
 ### Sprint 7 — Docker / README máy sạch · **deadline 02/11/2026**
 
-- [ ] Hoàn thiện README bước chạy (copy `.env`, compose, migrate, seed, FE/BE)  (Vân đã làm vào check fix nếu có lỗi ).
+- [x] Hoàn thiện README bước chạy (copy `.env`, compose, migrate, seed, FE/BE) 
 - [ ] Test trên máy sạch / máy thành viên khác  
 - [ ] Tạo **khung Word** report (bìa, mục lục, heading) + format  
 - [ ] (Tuỳ chọn) đóng gói thêm service app vào compose
+
+
 
 ### Sprint 8 — Report + Word + tham gia video · **deadline 05/11/2026**
 
