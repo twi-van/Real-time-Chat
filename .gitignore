@@ -1,8 +1,17 @@
+# Dependencies & build (không nộp trong source)
 node_modules/
+vendor/
+target/
 dist/
 build/
+client/dist/
+server/dist/
+
+# Env & secrets
 .env
 .env.local
+
+# Logs & OS / IDE
 *.log
 .DS_Store
 ~$*.docx
@@ -10,6 +19,3 @@ build/
 .vscode/
 coverage/
 *.tsbuildinfo
-client/dist/
-server/dist/
-docs/HUONG_DAN_VIDEO_DEMO.md
