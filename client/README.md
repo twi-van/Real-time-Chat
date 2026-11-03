@@ -17,7 +17,7 @@ Copy-Item .env.example .env
 cp .env.example .env
 ```
 
-Nội dung mặc định `.env` trỏ vào backend ở `http://localhost:4000` (đúng theo README gốc).
+Nội dung mặc định `.env` trỏ vào backend ở `http://localhost:4000` (đúng theo `README.md` ở thư mục gốc repo).
 
 ### 2. Cài đặt thư viện
 
@@ -33,13 +33,13 @@ npm run dev
 
 Truy cập tại: **http://localhost:5173**
 
-> **Lưu ý:** Cần backend đang chạy ở `http://localhost:4000`. Nếu backend chưa chạy, giao diện vẫn hoạt động với **dữ liệu mock** (tự động fallback).
+> **Lưu ý:** Cần chạy cơ sở dữ liệu và backend trước (xem `README.md` ở thư mục gốc repo: `docker compose up -d` → `cd server` → `npm run db:migrate` → `npm run db:seed` → `npm run dev`). Nếu backend chưa chạy, giao diện sẽ báo lỗi *"Không kết nối được máy chủ. Hãy chạy Backend (cổng 4000)"* và không đăng nhập được.
 
 ---
 
 ## Tài khoản demo
 
-Khi backend + database đã seed (`npm run db:seed`):
+Khi backend + database đã seed (`cd server && npm run db:seed`):
 
 | # | Tên | Email | Mật khẩu |
 |---|-----|-------|---------|
@@ -47,7 +47,7 @@ Khi backend + database đã seed (`npm run db:seed`):
 | 2 | **Bình** | `b@b.com` | `123456` |
 | 3 | **Chi** | `c@c.com` | `123456` |
 
-Mở 2 tab trình duyệt → đăng nhập 2 tài khoản khác nhau → test chat realtime.
+> **Lưu ý kiểm thử 2 tài khoản cùng lúc:** Do ứng dụng lưu phiên làm việc trong `localStorage`, hãy mở **1 tab bình thường** (User An) và **1 tab cửa sổ ẩn danh (Incognito)** hoặc dùng trình duyệt khác (User Bình) để hai tài khoản không bị ghi đè phiên đăng nhập lên nhau.
 
 ---
 
@@ -57,7 +57,7 @@ Mở 2 tab trình duyệt → đăng nhập 2 tài khoản khác nhau → test c
 |------|----------|-------|
 | `VITE_API_URL` | `http://localhost:4000` | Backend REST API |
 | `VITE_SOCKET_URL` | `http://localhost:4000` | Backend Socket.io |
-| `VITE_PORT` | `5173` | Cổng dev server Vite |
+| `VITE_PORT` | `5173` | Cổng dev server Vite (được đọc và áp dụng qua `vite.config.js`) |
 
 ---
 
@@ -75,8 +75,8 @@ client/
 │   │   └── CreateGroupModal.jsx # Modal tạo nhóm
 │   ├── hooks/
 │   │   └── useSocket.js       # Hook quản lý Socket.io
-│   ├── api.js                 # Service gọi REST API (Backend)
-│   └── App.jsx                # Root component + router auth
+│   ├── api.js                 # Service gọi REST API Backend (không còn mock)
+│   └── App.jsx                # Root component + router auth & Toast thông báo
 ├── .env.example
 └── package.json
 ```
@@ -85,13 +85,22 @@ client/
 
 ## Tính năng đã hoàn thành
 
-- [x] Login / Register (gọi API Backend)
+- [x] Login / Register (gọi REST API thật)
 - [x] Chat theo room realtime (Socket.io)
 - [x] Tạo chat mới (2 người) — chống trùng room đôi
 - [x] Tạo nhóm (≥ 3 người, có tên)
 - [x] Typing indicator (2.5s tắt)
 - [x] Presence online/offline
-- [x] Lịch sử tin nhắn + cursor pagination (cuộn lên tải thêm)
+- [x] Lịch sử tin nhắn + cursor pagination (cuộn lên tải thêm, giữ vị trí scroll)
 - [x] Responsive mobile (< 768px) — sidebar/chat toggle
 - [x] Xử lý lỗi 401 → toast + auto logout
+- [x] Xử lý lỗi 400, 403, 429 và thông báo mất kết nối máy chủ
 - [x] Đăng xuất (xóa token + disconnect socket)
+
+---
+
+## Xử lý sự cố (Troubleshooting)
+
+- **Lỗi CORS / Không gọi được API:** Kiểm tra biến `CLIENT_ORIGIN` trong `server/.env` phải khớp với địa chỉ Frontend (`http://localhost:5173`).
+- **Sai cổng kết nối:** Kiểm tra file `client/.env`, đảm bảo `VITE_API_URL=http://localhost:4000` và `VITE_SOCKET_URL=http://localhost:4000`.
+- **Không đăng nhập được tài khoản demo:** Đảm bảo bạn đã chạy `cd server && npm run db:seed` để nạp dữ liệu mẫu vào PostgreSQL.
