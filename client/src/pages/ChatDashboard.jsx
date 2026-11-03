@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { 
   LogOut, 
   MessageSquarePlus, 
@@ -16,6 +16,12 @@ import { api } from '../api';
 import { useSocket } from '../hooks/useSocket';
 import NewChatModal from '../components/NewChatModal';
 import CreateGroupModal from '../components/CreateGroupModal';
+
+const sortRoomsByLatestActivity = (rooms) => [...rooms].sort((a, b) => {
+  const aTime = new Date(a.lastMessage?.createdAt || a.createdAt || 0).getTime();
+  const bTime = new Date(b.lastMessage?.createdAt || b.createdAt || 0).getTime();
+  return bTime - aTime;
+});
 
 export default function ChatDashboard({ currentUser, token, onLogout }) {
   const [rooms, setRooms] = useState([]);
@@ -38,9 +44,20 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
 
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
+  const messageInputRef = useRef(null);
   const typingTimerRef = useRef(null);
   const remoteTypingTimersRef = useRef({});
   const activeRoomIdRef = useRef(activeRoomId);
+
+  useLayoutEffect(() => {
+    const textarea = messageInputRef.current;
+    if (!textarea) return;
+
+    const maxHeight = 128;
+    textarea.style.height = 'auto';
+    textarea.style.height = `${Math.min(textarea.scrollHeight, maxHeight)}px`;
+    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden';
+  }, [inputText]);
 
   useEffect(() => {
     activeRoomIdRef.current = activeRoomId;
@@ -71,20 +88,22 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
       setTimeout(() => scrollToBottom('smooth'), 50);
     }
 
-    // Cập nhật preview tin mới nhất ở sidebar
-    setRooms(prev => prev.map(r => {
-      if (r.id === normalizedMessage.roomId) {
-        return {
-          ...r,
-          lastMessage: {
-            content: normalizedMessage.content,
-            createdAt: normalizedMessage.createdAt,
-            senderId: normalizedMessage.senderId
-          }
-        };
-      }
-      return r;
-    }));
+    // Cập nhật preview, trạng thái chưa đọc và thứ tự phòng theo tin nhắn mới nhất
+    setRooms(prev => sortRoomsByLatestActivity(prev.map(room => {
+      if (room.id !== normalizedMessage.roomId) return room;
+
+      const isRoomOpen = room.id === activeRoomIdRef.current;
+      const isIncoming = normalizedMessage.senderId !== (currentUser?.id || 'u1');
+      return {
+        ...room,
+        lastMessage: {
+          content: normalizedMessage.content,
+          createdAt: normalizedMessage.createdAt,
+          senderId: normalizedMessage.senderId
+        },
+        hasUnread: isRoomOpen ? false : isIncoming ? true : room.hasUnread
+      };
+    })));
   };
 
   // Callback trạng thái typing
@@ -145,9 +164,10 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
 
   const loadRooms = async () => {
     const list = await api.getRooms();
-    setRooms(list || []);
-    if (list && list.length > 0 && !activeRoomId) {
-      setActiveRoomId(list[0].id);
+    const sortedRooms = sortRoomsByLatestActivity(list || []);
+    setRooms(sortedRooms);
+    if (sortedRooms.length > 0 && !activeRoomId) {
+      setActiveRoomId(sortedRooms[0].id);
     }
   };
 
@@ -242,6 +262,13 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
     typingTimerRef.current = setTimeout(() => {
       sendTyping(false);
     }, 2500);
+  };
+
+  const handleInputKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+      e.preventDefault();
+      handleSend();
+    }
   };
 
   // Helper lấy thông tin hiển thị của room theo Sprint 1 rule:
@@ -347,6 +374,9 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
                 key={room.id}
                 onClick={() => {
                   setActiveRoomId(room.id);
+                  setRooms(prev => prev.map(item => (
+                    item.id === room.id ? { ...item, hasUnread: false } : item
+                  )));
                   setMobileView('chat');
                 }}
                 className={`group flex items-center gap-3.5 p-3 rounded-2xl cursor-pointer transition-all duration-150 ${
@@ -374,7 +404,7 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
                 {/* Info & Last message */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
-                    <h3 className={`text-xs truncate ${isSelected ? 'font-bold text-indigo-950' : 'font-semibold text-slate-800'}`}>
+                    <h3 className={`text-xs truncate ${room.hasUnread || isSelected ? 'font-bold text-indigo-950' : 'font-semibold text-slate-800'}`}>
                       {info.isGroup ? `# ${info.title}` : info.title}
                     </h3>
                     <span className="text-[10px] text-slate-400 flex-shrink-0">
@@ -384,7 +414,7 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
                       }
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-400 truncate line-clamp-1">
+                  <p className={`text-[11px] truncate line-clamp-1 ${room.hasUnread ? 'font-bold text-slate-700' : 'text-slate-400'}`}>
                     {room.lastMessage?.content || 'Chưa có tin nhắn'}
                   </p>
                 </div>
@@ -535,13 +565,15 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
 
             {/* Ô nhập tin nhắn (Figma mockup góc dưới) */}
             <div className="p-4 bg-white border-t border-slate-100">
-              <form onSubmit={handleSend} className="flex items-center gap-3">
-                <input
-                  type="text"
+              <form onSubmit={handleSend} className="flex items-end gap-3">
+                <textarea
+                  ref={messageInputRef}
+                  rows={1}
                   value={inputText}
                   onChange={handleInputChange}
+                  onKeyDown={handleInputKeyDown}
                   placeholder="Nhập tin nhắn... (Enter để gửi, Shift+Enter xuống dòng)"
-                  className="flex-1 py-3 px-5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all"
+                  className="flex-1 min-h-12 max-h-32 resize-none overflow-y-auto py-3 px-5 leading-5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 transition-all"
                 />
 
                 <button
@@ -575,7 +607,7 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
         onlineUsers={presenceByUser}
         onClose={() => setIsNewChatOpen(false)}
         onRoomCreated={(newRoom) => {
-          setRooms(prev => [newRoom, ...prev.filter(r => r.id !== newRoom.id)]);
+          setRooms(prev => sortRoomsByLatestActivity([newRoom, ...prev.filter(r => r.id !== newRoom.id)]));
           setActiveRoomId(newRoom.id);
           setMobileView('chat');
         }}
@@ -586,7 +618,7 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
         onlineUsers={presenceByUser}
         onClose={() => setIsCreateGroupOpen(false)}
         onRoomCreated={(newRoom) => {
-          setRooms(prev => [newRoom, ...prev.filter(r => r.id !== newRoom.id)]);
+          setRooms(prev => sortRoomsByLatestActivity([newRoom, ...prev.filter(r => r.id !== newRoom.id)]));
           setActiveRoomId(newRoom.id);
           setMobileView('chat');
         }}

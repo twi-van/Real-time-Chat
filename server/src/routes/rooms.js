@@ -40,7 +40,13 @@ router.get(
       include: roomListInclude,
       orderBy: { createdAt: "desc" },
     });
-    return res.json({ rooms: rooms.map(roomResponse) });
+    const roomList = rooms.map(roomResponse);
+    roomList.sort((a, b) => {
+      const aTime = new Date(a.lastMessage?.createdAt || a.createdAt).getTime();
+      const bTime = new Date(b.lastMessage?.createdAt || b.createdAt).getTime();
+      return bTime - aTime;
+    });
+    return res.json({ rooms: roomList });
   })
 );
 

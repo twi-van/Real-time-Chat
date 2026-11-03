@@ -68,6 +68,7 @@ function registerSocket(io) {
   io.on("connection", (socket) => {
     console.log("socket OK:", socket.user.displayName, socket.id);
 
+    socket.join(`user:${socket.user.id}`);
     addOnline(socket.user.id, socket.id);
     // Báo mọi client: user online (kể cả lần connect đầu)
     io.emit("presence", {
@@ -191,6 +192,10 @@ function registerSocket(io) {
           return;
         }
 
+        const roomMembers = await prisma.roomMember.findMany({
+          where: { roomId },
+          select: { userId: true },
+        });
         const message = await prisma.message.create({
           data: {
             roomId,
@@ -207,7 +212,9 @@ function registerSocket(io) {
           createdAt: message.createdAt,
         };
 
-        io.to(roomId).emit("receive_message", out);
+        for (const member of roomMembers) {
+          io.to(`user:${member.userId}`).emit("receive_message", out);
+        }
         if (typeof ack === "function") ack({ ok: true, message: out });
       } catch (err) {
         console.error("send_message error:", err);
