@@ -9,3 +9,4 @@ Thư mục này chứa **file SQL đính kèm source** theo yêu cầu môn (t�
 | `init.sql` | Gộp schema + seed — **file chính để nộp** |
 
 **Lưu ý:** Khi chạy app theo README gốc vẫn dùng **Prisma** (`npm run db:migrate` + `npm run db:seed`). SQL ở đây **không thay** Prisma; chỉ để nộp / tham chiếu.
+
