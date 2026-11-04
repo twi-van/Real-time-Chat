@@ -1,0 +1,28 @@
+%%{init: {
+  "sequence": {
+    "actorMargin": 100,
+    "width": 160,
+    "boxMargin": 12,
+    "messageMargin": 45,
+    "mirrorActors": false,
+    "useMaxWidth": false
+  },
+  "themeVariables": {
+    "fontSize": "14px",
+    "fontFamily": "Arial, sans-serif"
+  }
+}}%%
+sequenceDiagram
+    autonumber
+    participant A as Client A
+    participant BE as Backend
+    participant B as Client B
+
+    A->>BE: disconnect
+    BE->>BE: Gỡ socketId của A
+
+    alt Còn tab/socket khác
+        Note over BE: Không phát offline
+    else Socket cuối của A
+        BE-->>B: presence offline (A)
+    end

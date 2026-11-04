@@ -1,6 +1,6 @@
 /**
- * Smoke Sprint 5–6: mã lỗi contract + 2 client chat.
- * Chạy: node scripts/smoke-sprint56.js  (server đang listen :4000)
+ * Smoke test Backend: mã lỗi contract + 2 client chat.
+ * Chạy: node scripts/smoke.js  (server đang listen :4000)
  */
 const { io } = require("socket.io-client");
 
@@ -135,7 +135,7 @@ function assert(cond, msg) {
   r = await req("GET", "/nope", { token: tokenA });
   assert(r.status === 404, "404 unknown path");
 
-  console.log("\nSPRINT 5-6 SMOKE PASSED");
+  console.log("\nSMOKE PASSED");
   process.exit(0);
 })().catch((e) => {
   console.error("SMOKE FAILED:", e.message);
