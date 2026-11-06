@@ -68,7 +68,6 @@ export default function CreateGroupModal({ isOpen, onClose, onRoomCreated, onlin
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
-      {/* Modal Dialog khớp 100% bản Figma screenshot #5 */}
       <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden transform transition-all">
         
         {/* Header */}

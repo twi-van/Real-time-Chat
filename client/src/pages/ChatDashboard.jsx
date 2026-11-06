@@ -295,9 +295,7 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
     }
   };
 
-  // Helper lấy thông tin hiển thị của room theo Sprint 1 rule:
-  // - Nếu room đúng 2 members: hiện tên & avatar của đối phương
-  // - Nếu room >= 3 members: hiện tên nhóm (name)
+  // Phòng 2 người: hiện tên đối phương. Từ 3 người: hiện tên nhóm.
   const getRoomDisplayInfo = (room) => {
     if (!room) return { title: '', isGroup: false, subtitle: '', isOnline: false };
     const members = room.members || [];
@@ -336,7 +334,6 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
         mobileView === 'sidebar' ? 'flex' : 'hidden md:flex'
       }`}>
         
-        {/* User Profile Header (Figma mockup góc trái trên) */}
         <div className="py-3 px-5 flex items-center justify-between border-b border-slate-100/80 bg-white">
           <div className="flex items-center gap-3">
             <div className="relative">
@@ -366,7 +363,6 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
           </button>
         </div>
 
-        {/* Action Buttons: 2 nút đã chốt Sprint 1 */}
         <div className="p-4 space-y-2.5 bg-white border-b border-slate-100">
           {/* Nút 1: Chat mới */}
           <button
@@ -387,7 +383,6 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
           </button>
         </div>
 
-        {/* Room List (Sidebar items theo Figma) */}
         <div className="flex-1 overflow-y-auto px-3 py-3 space-y-1">
           {rooms.map(room => {
             const isSelected = room.id === activeRoomId;
@@ -455,7 +450,6 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
         
         {activeRoom ? (
           <div className="flex flex-col flex-1 min-h-0">
-            {/* Header phòng chat (Figma mockup ảnh #3 & #4) */}
             <header className="py-3 px-5 flex items-center justify-between border-b border-slate-100/80 bg-white">
               <div className="flex items-center gap-3">
                 {/* Nút quay lại trên mobile */}
@@ -559,7 +553,6 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
                           </div>
                         )}
 
-                        {/* Bong bóng tin nhắn khớp Figma */}
                         <div
                           className={`p-3.5 px-4.5 rounded-3xl text-xs sm:text-sm leading-relaxed shadow-xs ${
                             isMe 
@@ -590,7 +583,6 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Ô nhập tin nhắn (Figma mockup góc dưới) */}
             <div className="p-4 bg-white border-t border-slate-100">
               <form onSubmit={handleSend} className="flex items-end gap-3">
                 <textarea

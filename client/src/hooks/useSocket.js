@@ -38,22 +38,21 @@ export function useSocket(token, activeRoomId, onMessageReceived, onPresenceUpda
       return;
     }
 
-    // Kết nối socket với JWT auth token theo đúng api-contract.md mục 3
     const socket = io(SOCKET_URL, {
       auth: { token },
       transports: ['websocket', 'polling'],
       autoConnect: true,
-      reconnection: true,             // Bật tự động kết nối lại
-      reconnectionAttempts: Infinity, // Thử lại liên tục, không giới hạn số lần
-      reconnectionDelay: 1000,        // Thử lại sau 1s
-      reconnectionDelayMax: 5000,     // Giãn cách tối đa giữa các lần thử là 5s
-      timeout: 10000,                 // 10s timeout cho handshake
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      timeout: 10000,
     });
 
     socketRef.current = socket;
 
     socket.on('connect', () => {
-      console.log('⚡ Socket connected:', socket.id);
+      console.log('Socket connected:', socket.id);
       setIsConnected(true);
       if (activeRoomId) {
         socket.emit('join_room', { roomId: activeRoomId });
@@ -61,20 +60,18 @@ export function useSocket(token, activeRoomId, onMessageReceived, onPresenceUpda
     });
 
     socket.on('disconnect', (reason) => {
-      console.log('🔌 Socket disconnected:', reason);
+      console.log('Socket disconnected:', reason);
       setIsConnected(false);
     });
 
     socket.on('connect_error', (err) => {
       console.warn('Socket connect error:', err.message);
       setIsConnected(false);
-      // Nếu server socket từ chối vì lý do xác thực UNAUTHORIZED 
       if (err.message?.includes('UNAUTHORIZED') || err.data?.message?.includes('UNAUTHORIZED')) {
         api.handleUnauthorized();
       }
     });
 
-    // Event S -> C: receive_message
     socket.on('receive_message', (msg) => {
       if (onMessageRef.current) {
         onMessageRef.current({
@@ -84,14 +81,12 @@ export function useSocket(token, activeRoomId, onMessageReceived, onPresenceUpda
       }
     });
 
-    // Event S -> C: presence
     socket.on('presence', (data) => {
       if (onPresenceRef.current) {
         onPresenceRef.current(data);
       }
     });
 
-    // Event S -> C: typing
     socket.on('typing', (data) => {
       if (onTypingRef.current) {
         onTypingRef.current(data);

@@ -75,7 +75,7 @@ client/
 │   │   └── CreateGroupModal.jsx # Modal tạo nhóm
 │   ├── hooks/
 │   │   └── useSocket.js       # Hook quản lý Socket.io
-│   ├── api.js                 # Service gọi REST API Backend (không còn mock)
+│   ├── api.js                 # Gọi REST API backend
 │   └── App.jsx                # Root component + router auth & Toast thông báo
 ├── .env.example
 └── package.json
@@ -83,19 +83,19 @@ client/
 
 ---
 
-## Tính năng đã hoàn thành
+## Tính năng
 
-- [x] Login / Register (gọi REST API thật)
-- [x] Chat theo room realtime (Socket.io)
-- [x] Tạo chat mới (2 người) — chống trùng room đôi
-- [x] Tạo nhóm (≥ 3 người, có tên)
-- [x] Typing indicator (2.5s tắt)
-- [x] Presence online/offline
-- [x] Lịch sử tin nhắn + cursor pagination (cuộn lên tải thêm, giữ vị trí scroll)
-- [x] Responsive mobile (< 768px) — sidebar/chat toggle
-- [x] Xử lý lỗi 401 → toast + auto logout
-- [x] Xử lý lỗi 400, 403, 429 và thông báo mất kết nối máy chủ
-- [x] Đăng xuất (xóa token + disconnect socket)
+- Đăng nhập và đăng ký qua REST API
+- Chat theo phòng, thời gian thực (Socket.io)
+- Tạo chat mới cho 2 người, không tạo trùng phòng đôi
+- Tạo nhóm từ 3 người, có tên nhóm
+- Trạng thái đang nhập (tắt sau 2,5 giây)
+- Trạng thái online và offline
+- Lịch sử tin nhắn, cuộn lên để tải thêm
+- Giao diện điện thoại: chuyển sidebar và khung chat
+- Lỗi 401 thì thông báo và đăng xuất
+- Lỗi 400, 403, 429 và mất kết nối máy chủ có thông báo
+- Đăng xuất: xóa token và ngắt socket
 
 ---
 

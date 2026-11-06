@@ -48,7 +48,6 @@ export default function Register({ onRegisterSuccess, onNavigateToLogin }) {
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-[#f8fafc] via-[#f1f5f9] to-[#ede9fe] p-4 sm:p-6 selection:bg-indigo-500 selection:text-white">
-      {/* Container Card khớp 100% Figma */}
       <div className="w-full max-w-[440px] bg-white rounded-3xl shadow-[0_20px_50px_rgba(79,70,229,0.08)] border border-slate-100 p-8 sm:p-10 transition-all duration-300">
         
         {/* Logo & Icon */}
