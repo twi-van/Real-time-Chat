@@ -43,8 +43,11 @@ export function useSocket(token, activeRoomId, onMessageReceived, onPresenceUpda
       auth: { token },
       transports: ['websocket', 'polling'],
       autoConnect: true,
-      reconnectionAttempts: 5,
-      timeout: 3000,
+      reconnection: true,             // Bật tự động kết nối lại
+      reconnectionAttempts: Infinity, // Thử lại liên tục, không giới hạn số lần
+      reconnectionDelay: 1000,        // Thử lại sau 1s
+      reconnectionDelayMax: 5000,     // Giãn cách tối đa giữa các lần thử là 5s
+      timeout: 10000,                 // 10s timeout cho handshake
     });
 
     socketRef.current = socket;
@@ -65,7 +68,7 @@ export function useSocket(token, activeRoomId, onMessageReceived, onPresenceUpda
     socket.on('connect_error', (err) => {
       console.warn('Socket connect error:', err.message);
       setIsConnected(false);
-      // Nếu server socket từ chối vì lý do xác thực UNAUTHORIZED (api-contract mục 4)
+      // Nếu server socket từ chối vì lý do xác thực UNAUTHORIZED 
       if (err.message?.includes('UNAUTHORIZED') || err.data?.message?.includes('UNAUTHORIZED')) {
         api.handleUnauthorized();
       }

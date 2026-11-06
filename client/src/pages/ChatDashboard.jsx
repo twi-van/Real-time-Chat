@@ -23,6 +23,19 @@ const sortRoomsByLatestActivity = (rooms) => [...rooms].sort((a, b) => {
   return bTime - aTime;
 });
 
+const formatMessageDate = (value) => {
+  const date = new Date(value);
+  const dateLabel = date.toLocaleDateString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+
+  return date.toDateString() === new Date().toDateString()
+    ? `Hôm nay, ${dateLabel}`
+    : dateLabel;
+};
+
 export default function ChatDashboard({ currentUser, token, onLogout }) {
   const [rooms, setRooms] = useState([]);
   const [activeRoomId, setActiveRoomId] = useState(null);
@@ -514,48 +527,51 @@ export default function ChatDashboard({ currentUser, token, onLogout }) {
                 </div>
               )}
 
-              {/* Divider Ngày */}
-              <div className="flex items-center justify-center my-3">
-                <span className="px-4 py-1 rounded-full bg-slate-100 text-slate-500 text-[11px] font-medium">
-                  Hôm nay, {new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                </span>
-              </div>
-
-              {messages.map(msg => {
+              {messages.map((msg, index) => {
                 const isMe = msg.senderId === (currentUser?.id || 'u1');
                 const senderName = msg.sender?.displayName || (isMe ? 'Bạn' : 'Người khác');
+                const messageDate = new Date(msg.createdAt);
+                const previousMessage = messages[index - 1];
+                const showDateDivider = !previousMessage
+                  || new Date(previousMessage.createdAt).toDateString() !== messageDate.toDateString();
 
                 return (
-                  <div
-                    key={msg.id}
-                    className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} space-y-1 animate-fade-in`}
-                  >
-                    {/* Tên người gửi & giờ */}
-                    <div className="flex items-center gap-2 text-[11px] text-slate-400 px-1">
-                      {!isMe && <span className="font-semibold text-slate-700">{senderName}</span>}
-                      <span>{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                      {isMe && <span className="font-medium text-indigo-600">• Bạn</span>}
-                    </div>
+                  <React.Fragment key={msg.id}>
+                    {showDateDivider && (
+                      <div className="flex items-center justify-center my-3">
+                        <span className="px-4 py-1 rounded-full bg-slate-100 text-slate-500 text-[11px] font-medium">
+                          {formatMessageDate(msg.createdAt)}
+                        </span>
+                      </div>
+                    )}
+                    <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} space-y-1 animate-fade-in`}>
+                      {/* Tên người gửi & giờ */}
+                      <div className="flex items-center gap-2 text-[11px] text-slate-400 px-1">
+                        {!isMe && <span className="font-semibold text-slate-700">{senderName}</span>}
+                        <span>{messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        {isMe && <span className="font-medium text-indigo-600">• Bạn</span>}
+                      </div>
 
-                    <div className="flex items-end gap-2 max-w-[75%] sm:max-w-[65%]">
-                      {!isMe && (
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-400 to-teal-500 text-white flex-shrink-0 flex items-center justify-center font-bold text-[10px] mb-1">
-                          {senderName.slice(0, 2).toUpperCase()}
+                      <div className="flex items-end gap-2 max-w-[75%] sm:max-w-[65%]">
+                        {!isMe && (
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-400 to-teal-500 text-white flex-shrink-0 flex items-center justify-center font-bold text-[10px] mb-1">
+                            {senderName.slice(0, 2).toUpperCase()}
+                          </div>
+                        )}
+
+                        {/* Bong bóng tin nhắn khớp Figma */}
+                        <div
+                          className={`p-3.5 px-4.5 rounded-3xl text-xs sm:text-sm leading-relaxed shadow-xs ${
+                            isMe 
+                              ? 'bg-[#4f46e5] text-white rounded-br-xs font-normal' 
+                              : 'bg-white border border-slate-100 text-slate-800 rounded-bl-xs font-normal shadow-[0_2px_10px_rgba(0,0,0,0.03)]'
+                          }`}
+                        >
+                          {msg.content}
                         </div>
-                      )}
-
-                      {/* Bong bóng tin nhắn khớp Figma */}
-                      <div
-                        className={`p-3.5 px-4.5 rounded-3xl text-xs sm:text-sm leading-relaxed shadow-xs ${
-                          isMe 
-                            ? 'bg-[#4f46e5] text-white rounded-br-xs font-normal' 
-                            : 'bg-white border border-slate-100 text-slate-800 rounded-bl-xs font-normal shadow-[0_2px_10px_rgba(0,0,0,0.03)]'
-                        }`}
-                      >
-                        {msg.content}
                       </div>
                     </div>
-                  </div>
+                  </React.Fragment>
                 );
               })}
 
