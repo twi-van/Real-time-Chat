@@ -272,7 +272,7 @@ Smoke test Backend (tuỳ chọn, khi server đang chạy):
 
 ```bash
 cd server
-node scripts/smoke-sprint56.js
+node scripts/smoke.js
 ```
 
 ---
