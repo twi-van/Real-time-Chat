@@ -82,8 +82,7 @@ Ngoài phạm vi: tách loại phòng direct/group, vào phòng bằng link, tr�
 │   ├── init.sql            # Tạo bảng và 3 user demo
 │   └── README.md
 ├── docs/
-│   ├── report.docx
-│   └── diagrams/           # Sơ đồ trình tự
+│   └── report.docx
 ├── docker-compose.yml
 ├── .env.example
 └── README.md
